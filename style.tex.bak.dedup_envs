@@ -1,0 +1,586 @@
+% !TEX root = main.tex
+% =============================
+% style.tex — Estilo del libro
+% Proyecto: Math Hoffmann — Vol. 2
+% Compilación: XeLaTeX (latexmk -xelatex)
+% =============================
+
+% -------------------------------------------------
+% 0) MOTOR, IDIOMA, TIPOGRAFÍA Y MATEMÁTICAS
+% -------------------------------------------------
+\usepackage{fontspec}          % Fuentes (XeLaTeX/LuaLaTeX)
+\usepackage{unicode-math}      % Matemáticas con Unicode
+
+% Idioma (después de fontspec)
+\usepackage{polyglossia}
+\setmainlanguage{spanish}
+
+% Fuentes del libro
+\setmainfont{TeX Gyre Termes}  % Texto
+\setmathfont{STIX Two Math}    % Matemáticas
+
+% Párrafo: estilo editorial (espaciado entre párrafos, sin sangría)
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+
+% -------------------------------------------------
+% 1) DIMENSIONES DE PÁGINA Y ENLACES
+% (geom. antes; hyperref near-last pero antes de usar \href)
+% -------------------------------------------------
+\usepackage[
+  paperwidth=8.5in,
+  paperheight=11in,
+  inner=1.0in,
+  outer=0.5in,
+  top=0.75in,
+  bottom=0.85in,
+  headsep=0.25in,
+  footskip=0.4in
+]{geometry}
+
+\usepackage[hidelinks]{hyperref} % enlaces limpios
+
+% -------------------------------------------------
+% 2) GRÁFICOS, COLOR Y DIBUJO
+% (Portada/Apertura necesita logo pronto)
+% -------------------------------------------------
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+
+% Logo (digital/impresión)
+\newif\ifdigital
+\digitalfalse                          % por defecto: impresión B/N
+% \digitaltrue                         % descomentar para versión digital (color)
+
+\newcommand{\MHLogoColor}{media/Apertura/Logo.png}
+\newcommand{\MHLogoPrint}{media/Apertura/Logo.pdf}
+
+\newcommand{\MHLogo}[1][0.12\linewidth]{%
+  \ifdigital
+    \includegraphics[width=#1]{\MHLogoColor}%
+  \else
+    \IfFileExists{\MHLogoPrint}{\includegraphics[width=#1]{\MHLogoPrint}}{\includegraphics[width=#1]{\MHLogoColor}}%
+  \fi
+}
+
+% Atajo: logo al pie, centrado (para apertura/portada)
+\newcommand{\MHLogoBottom}[1][0.14\linewidth]{%
+  \vfill
+  \MHLogo[#1]%
+  \vspace*{1.2cm}%
+}
+
+% -------------------------------------------------
+% 3) ENCABEZADOS Y PIES (fancyhdr)
+% (usa \href→ hyperref ya cargado)
+% -------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+% Macro para título de capítulo en pie
+\newcommand{\chaptertitle}{} % se actualiza en \fullchapter
+
+% Páginas pares → número + web
+\fancyfoot[LE]{%
+  \rule[0.5ex]{\linewidth}{0.4pt}\\
+  \small \thepage \quad \textit{visita} $\rightarrow$ \href{https://www.mathhoffmann.com}{www.mathhoffmann.com}%
+}
+
+% Páginas impares → símbolo+capítulo + número
+\fancyfoot[RO]{%
+  \rule[0.5ex]{\linewidth}{0.4pt}\\
+  \small \chaptertitle \enspace \thepage%
+}
+
+% Estilos vacíos para portada/creditos/etc.
+\usepackage{etoolbox} % utilidades varias
+\fancypagestyle{emptyplain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \fancyfoot[RO]{\rule[0.5ex]{\linewidth}{0.4pt}\\ \small \chaptertitle \enspace \thepage}%
+}
+
+% -------------------------------------------------
+% 4) TITULACIÓN (chapters/sections) — Aparición temprana
+% -------------------------------------------------
+\usepackage{titlesec}
+
+% Bloque de capítulo (símbolo + título) y marcas para pies
+% Uso: \fullchapter{Nº}{Símbolo}{Título}
+\newcommand{\fullchapter}[3]{%
+  \chapter*{}%
+  \addcontentsline{toc}{chapter}{#3}%
+  \markboth{#2\; #3}{}%
+  \renewcommand{\chaptertitle}{#2\; #3}%
+  \begin{center}
+    \vspace*{-2cm} % ajuste fino vertical
+    {\fontsize{22}{24}\selectfont\bfseries #1}\par\vspace{1ex}
+    {\fontsize{20}{22}\selectfont\bfseries \scalebox{1.4}{#2} \quad #3}\par\vspace{0.2ex}
+    \rule{\linewidth}{1pt}\\[-1.2ex]
+    \rule{0.85\linewidth}{0.5pt}
+  \end{center}%
+}
+
+% Subtítulo de capítulo (15pt bold)
+\newcommand{\subtitulocapitulo}[1]{%
+  \vspace{1.5ex}%
+  \noindent{\fontsize{15}{17}\selectfont\bfseries #1}\par\vspace{1ex}%
+}
+
+% Secciones / Subsecciones
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{14}{16}\selectfont}{\thesection}{1.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{12}{14}\selectfont}{\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+% -------------------------------------------------
+% 5) INTRO DE CAPÍTULO — listas y cita manual
+% (la cita ya la haces en intro.tex con flushright; aquí solo helpers)
+% -------------------------------------------------
+\usepackage{enumitem,pifont}
+\setlist[itemize]{itemsep=0.3ex, topsep=0.5ex}
+
+% Lista “¿Qué vas a aprender?”
+\newlist{aprende}{itemize}{1}
+\setlist[aprende]{label=\ding{228}, leftmargin=2em, itemsep=.25em, topsep=.6em}
+
+% +1pt para la cita (adaptativo al tamaño actual)
+\makeatletter
+\newcommand{\oneptup}{%
+  \edef\mh@size{\strip@pt\dimexpr\f@size pt + 1pt\relax}%
+  \edef\mh@base{\strip@pt\dimexpr\f@size pt + 3pt\relax}%
+  \fontsize{\mh@size}{\mh@base}\selectfont
+}
+\makeatother
+
+% Macros mínimos de portada (si los usas en apertura)
+\newcommand{\MHSizeSub}[1]{{\itshape\fontsize{15}{18}\selectfont #1}}
+\newcommand{\MHSizeAuthor}[1]{{\fontsize{15}{18}\selectfont #1}}
+\newcommand{\AuthorSC}[1]{{\textsc{#1}}}
+
+% -------------------------------------------------
+% 6) MATEMÁTICAS, ENTORNOS Y ESPACIADOS
+% -------------------------------------------------
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{empheq}
+\usepackage{siunitx}     % números/decimales
+\usepackage{tasks}       % listas tipo ejercicios en columnas
+\usepackage{array,tabularx}
+\usepackage{multicol}
+\usepackage{relsize}
+\usepackage{soul}        % subrayados
+\usepackage{changepage}  % márgenes locales
+
+% Espaciado vertical en ecuaciones (compacto)
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{3pt}%
+  \setlength\belowdisplayskip{3pt}%
+  \setlength\abovedisplayshortskip{2pt}%
+  \setlength\belowdisplayshortskip{2pt}%
+}
+\makeatother
+
+% Notación rápida en TOC (símbolos grandes)
+\newcommand{\tocmath}[1]{{\Large $#1$}}
+
+% Números y decimales (ES/EN)
+\sisetup{
+  output-decimal-marker = {,}, % decimal = coma
+  group-separator = {.},       % miles = punto
+  group-minimum-digits = 4
+}
+\newcommand{\numes}[1]{%
+  \begingroup
+  \sisetup{output-decimal-marker = {,}, group-separator = {}, group-minimum-digits = 4}%
+  \num{#1}%
+  \endgroup
+}
+\newcommand{\numen}[1]{%
+  \begingroup
+  \sisetup{output-decimal-marker = {.}, group-separator = {,}}%
+  \ensuremath{\num{#1}}%
+  \endgroup
+}
+
+% Notación decimal periódica
+\newcommand{\periodo}[1]{\overline{#1}}
+\newcommand{\periodoen}[1]{\overline{#1}}
+\newcommand{\periodico}[2]{%
+  \numes{#1}\;#2\;#2\;#2\ldots \;=\; \numes{#1}\overline{#2}%
+}
+
+% -------------------------------------------------
+% 7) CAJAS Y BLOQUES (tcolorbox) — usados en cuerpo
+% -------------------------------------------------
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems,skins}
+
+% Quote redefinido (estilo suave)
+\renewenvironment{quote}{%
+  \begin{tcolorbox}[
+    enhanced,
+    colback=black!5,
+    colframe=white,
+    boxrule=0pt,
+    left=2cm, right=2cm,
+    sharp corners,
+    top=4pt, bottom=4pt,
+    fontupper=\itshape
+  ]%
+}{%
+  \end{tcolorbox}
+}
+
+% Bloques varios
+\newenvironment{reseñaplana}{\par\noindent\ignorespaces}{\par}
+\newenvironment{reseñaitem}{%
+  \renewcommand\labelitemi{\ding{228}}%
+  \begin{itemize}[leftmargin=2em]%
+}{\end{itemize}}
+\newenvironment{introblock}[1]{%
+  \vspace{2ex}\noindent\textbf{\MakeUppercase{#1}}%
+  \begin{quote}\itshape
+}{\end{quote}\vspace{2ex}}
+\newenvironment{temablock}{%
+  \begin{tcolorbox}[colback=white,colframe=black!40,boxrule=0.4pt,
+    sharp corners, enhanced, breakable, title={Explicación}]%
+}{\end{tcolorbox}}
+\newenvironment{cierreblock}{%
+  \begin{tcolorbox}[colback=black!5,colframe=black!80,boxrule=0.8pt,
+    sharp corners, enhanced, breakable, title={Reflexión final}]%
+}{\end{tcolorbox}}
+
+% Caja apertura de capítulo (si se usa)
+\newtcolorbox{capitulobox}{%
+  enhanced, breakable,
+  colback=yellow!10, colframe=black, boxrule=0.6pt,
+  arc=6pt, fontupper=\itshape, width=\textwidth,
+  before skip=12pt, after skip=24pt,
+  before upper={\begin{center}\begin{minipage}{0.9\textwidth}\centering\sloppy},
+  after upper={\end{minipage}\end{center}}
+}
+
+% Caja de definición
+\newtcolorbox{defbox}{%
+  enhanced, breakable,
+  colback=white, colframe=black!60, boxrule=0.6pt, arc=6pt,
+  left=8pt, right=8pt, top=8pt, bottom=8pt,
+  before skip=10pt, after skip=10pt,
+  width=0.9\textwidth, center
+}
+
+% Caja extra/aparte
+\newtcolorbox{extrabox}{%
+  enhanced, breakable,
+  colback=white, colframe=black!70, boxrule=0.8pt, arc=4pt,
+  width=0.95\textwidth, center,
+  left=10pt, right=10pt, top=10pt, bottom=10pt,
+  before skip=16pt, after skip=16pt
+}
+
+% -------------------------------------------------
+% 8) EJERCICIOS — contador global y bloques
+% -------------------------------------------------
+\newcounter{ejercicioGlobal}
+\renewcommand{\theejercicioGlobal}{\arabic{ejercicioGlobal}}
+
+% Bloque decorativo unificado
+\newenvironment{BloqueEjercicios}[1][]{%
+  \refstepcounter{ejercicioGlobal}%
+  \begin{tcolorbox}[
+    enhanced,
+    colback=white, colframe=black!60, boxrule=0.6pt,
+    rounded corners, arc=2pt,
+    left=1em, right=1em, top=1em, bottom=1em,
+    title={Ejercicio~\theejercicioGlobal \if\relax\detokenize{#1}\relax\else: #1\fi},
+    fonttitle=\bfseries, coltitle=black,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=black!10, colframe=black!60, sharp corners,
+      boxrule=0.4pt, top=0.6mm, bottom=0.6mm, left=1mm, right=1mm}
+  ]%
+}{%
+  \end{tcolorbox}
+}
+
+% Ítems en modo matemático (helper)
+\newcommand{\MathItems}{%
+  \let\olditem\item
+  \renewcommand{\item}[1]{\olditem $\displaystyle ##1$}%
+}
+
+% 1 columna
+\newenvironment{ej1col}{%
+  \begin{enumerate}[label=\arabic*), leftmargin=1.8em, itemsep=1.2ex, topsep=1ex, parsep=1ex]%
+  \MathItems
+}{%
+  \end{enumerate}%
+}
+
+% 2 columnas
+\newenvironment{ej2col}{%
+  \setlength{\columnsep}{1cm}%
+  \begin{multicols}{2}%
+  \vspace{-5ex}%
+  \begin{enumerate}[label=\arabic*), leftmargin=1.5em, itemsep=1ex]%
+  \let\olditem\item
+  \renewcommand{\item}[1]{\olditem $\displaystyle ##1$}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+  \vspace{-6ex}%
+}
+
+% 3 columnas
+\newenvironment{ej3col}{%
+  \setlength{\columnsep}{1cm}%
+  \begin{multicols}{3}%
+  \begin{enumerate}[label=\arabic*), leftmargin=1.2em, itemsep=1ex]%
+  \MathItems
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% 4 columnas
+\newenvironment{ej4col}{%
+  \setlength{\columnsep}{1cm}%
+  \begin{multicols}{4}%
+  \begin{enumerate}[label=\arabic*), leftmargin=1em, itemsep=1ex]%
+  \MathItems
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% Automático (2 columnas por defecto)
+\newenvironment{ejAuto}{%
+  \setlength{\columnsep}{1cm}%
+  \begin{multicols}{2}%
+  \begin{enumerate}[label=\arabic*), leftmargin=1.5em, itemsep=1ex]%
+  \MathItems
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+
+% 3 columnas • bullets
+\NewDocumentEnvironment{ejemplos3bullet}{ D(){3} o }{%
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{3}%
+  \MHbeginEnum{label=\textbullet, labelsep=0.6em, leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}\end{multicols}%
+}
+
+% 2 columnas (a)(b)
+\NewDocumentEnvironment{ejemplos2short}{ D(){2} o }{%
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{2}%
+  \MHbeginEnum{label=(\alph*), labelsep=0.6em, leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}\end{multicols}%
+}
+
+% 2 columnas • bullets
+\NewDocumentEnvironment{ejemplos2shortbull}{ D(){2} o }{%
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{2}%
+  \MHbeginEnum{label=\textbullet, labelsep=0.6em, leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}\end{multicols}%
+}
+
+% -------------------------------------------------
+% 9) EJEMPLOS — entornos varios (multicol + enumitem)
+% -------------------------------------------------
+
+% Paquetes ya presentes en tu proyecto:
+%   \usepackage{enumitem}
+%   \usepackage{multicol}
+
+% Separación estándar entre columnas (para multicol).
+% (define si no existe; un solo sitio)
+\providecommand{\MHcolsep}{1.8em}
+
+% Salvaguardas: si alguien usa \task fuera, que no rompa; \MathItems es opcional.
+\providecommand{\task}{\item}
+\providecommand{\MathItems}{}
+
+% Helper: inicia enumerate + alias \task→\item + modo matemático si existe.
+\newcommand{\MHbeginEnum}[1]{%
+  \begin{enumerate}[#1]%
+  \let\task\item
+  \MathItems
+}
+
+% Helpers internos: devorar ( ... ) y [ ... ] tras \begin{...}
+\makeatletter
+\newcommand{\MHmaybeParens}{\@ifnextchar( {\MHgobbleParens}{}}
+\def\MHgobbleParens(#1){}% ignora el contenido de (...)
+\newcommand{\MHmaybeBracks}{\@ifnextchar[ {\MHgobbleBracks}{}}
+\def\MHgobbleBracks[#1]{}% ignora el contenido de [...]
+\makeatother
+
+% ========== 3 columnas (a)(b)(c) ==========
+\newenvironment{ejemplos3}{%
+  \MHmaybeParens \MHmaybeBracks
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{3}%
+  \MHbeginEnum{label=(\alph*), labelsep=0.6em,
+               leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% ========== 3 columnas • bullets ==========
+\newenvironment{ejemplos3bullet}{%
+  \MHmaybeParens \MHmaybeBracks
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{3}%
+  \MHbeginEnum{label=\textbullet, labelsep=0.6em,
+               leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% ========== 2 columnas (a)(b) ==========
+\newenvironment{ejemplos2short}{%
+  \MHmaybeParens \MHmaybeBracks
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{2}%
+  \MHbeginEnum{label=(\alph*), labelsep=0.6em,
+               leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% ========== 2 columnas • bullets ==========
+\newenvironment{ejemplos2shortbull}{%
+  \MHmaybeParens \MHmaybeBracks
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{2}%
+  \MHbeginEnum{label=\textbullet, labelsep=0.6em,
+               leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% ========== 2 columnas (largas) (a)(b) ==========
+\newenvironment{ejemplos2large}{%
+  \MHmaybeParens \MHmaybeBracks
+  \setlength{\columnsep}{\MHcolsep}%
+  \begin{multicols}{2}%
+  \MHbeginEnum{label=(\alph*), labelsep=0.6em,
+               leftmargin=3.5em, itemsep=2.8ex, topsep=3ex}%
+}{%
+  \end{enumerate}%
+  \end{multicols}%
+}
+
+% ========== 1 columna (a)(b) ==========
+\newenvironment{ejemplos1}{%
+  \MHmaybeParens \MHmaybeBracks
+  \MHbeginEnum{label=(\alph*), labelsep=0.6em,
+               leftmargin=3.5em, itemsep=1.2ex, topsep=2ex}%
+}{%
+  \end{enumerate}%
+}
+
+% ========== 1 columna • bullets ==========
+\newenvironment{ejemplos1bullet}{%
+  \MHmaybeParens \MHmaybeBracks
+  \MHbeginEnum{label=\textbullet, labelsep=0.6em,
+               leftmargin=3.5em, itemsep=1.2ex, topsep=2ex}%
+}{%
+  \end{enumerate}%
+}
+
+
+% -------------------------------------------------
+% 10) CASOS Y TABLAS AUXILIARES
+% -------------------------------------------------
+\newcounter{caso}[chapter]
+\renewcommand{\thecaso}{\arabic{caso}}
+
+\NewDocumentEnvironment{Caso}{ O{} }{%
+  \refstepcounter{caso}%
+  \par\medskip
+  \noindent
+  \tikz[baseline=(X.base)]{
+    \node[
+      fill=yellow!35, rounded corners=1pt,
+      inner xsep=4pt, inner ysep=3pt,
+      text height=2ex, text depth=.5ex, anchor=base west
+    ] (X) {\textbf{\Large Caso \thecaso}%
+      \if\relax\detokenize{#1}\relax\else~–~\textbf{#1}\fi};
+  }%
+  \par\vspace{1em}
+}{%
+  \par\vspace{1em}
+}
+
+\newcommand{\casolinea}[2]{%
+  \noindent\hspace*{1.5em}%
+  \begin{tabularx}{0.92\linewidth}{@{}X@{\hspace{1.5em}}>{\raggedright\arraybackslash}m{0.35\linewidth}@{}}%
+    #1 & $\displaystyle #2$\\[0.8ex]%
+  \end{tabularx}\par
+}
+
+% -------------------------------------------------
+% 11) UTILIDADES GENERALES
+% -------------------------------------------------
+% Esquemas/figuras centradas con título opcional
+\newcommand{\EsquemaConjuntos}[2][]{%
+  \vspace{0.5cm}
+  \begin{center}
+    \includegraphics[width=0.9\linewidth]{#2}%
+    \if\relax\detokenize{#1}\relax\else\\[4pt]\textbf{#1}\fi
+  \end{center}
+  \vspace{0.5cm}
+}
+
+% Fracciones en línea (ligeramente elevadas)
+\newcommand{\nfrac}[3][2pt]{%
+  \raisebox{#1}{$\dfrac{#2}{#3}$}\vphantom{p_{qgj}}%
+}
+
+% Llave decorativa inferior con texto
+\newcommand{\llaveabajo}[2]{%
+  \mathrel{\tikz[baseline=(m.base)]{
+    \node[inner sep=0pt] (m) {$#1$};
+    \draw [decorate,decoration={brace,mirror,amplitude=6pt}]
+      (m.south west) -- (m.south east)
+      node[midway,yshift=-9pt]{\scriptsize #2};
+  }}%
+}
+
+% Estilo global de tablas
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{0.8em}
+
+% Casos particulares (ej.: años, cap. 1)
+\newcommand{\anios}{\text{años}}
+
+% =============================
+% FIN DE style.tex
+% =============================
+

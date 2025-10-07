@@ -1,0 +1,46 @@
+\documentclass[11pt,openany]{book}
+
+% === Paquetes y estilo general ===
+
+\input{style.tex}
+
+% =============================
+% Páginas iniciales
+% =============================
+\begin{document}
+% --- Comparar portadas seguidas, sin páginas en blanco ---
+\begingroup
+  \let\cleardoublepage\clearpage   % neutraliza dobles saltos
+  \input{apertura/portada.tex}
+\endgroup
+
+
+
+% --- Créditos ---
+\input{apertura/creditos.tex}
+
+% --- Tema (tabla de capítulos) ---
+\input{apertura/temas.tex}
+
+% --- Frase motivacional ---
+\input{apertura/frase.tex}
+
+% =============================
+% Capítulos
+% =============================
+
+\input{chapters/ch01/ch01.tex}
+\input{chapters/ch02/ch02.tex}
+\input{chapters/ch04/ch04.tex}
+\input{chapters/ch05/ch05.tex}
+\input{chapters/ch06/ch06.tex}
+\input{chapters/ch07/ch07.tex}
+\input{chapters/ch08/ch08.tex}
+\input{chapters/ch09/ch09.tex}
+\input{chapters/ch10/ch10.tex}
+\input{chapters/ch11/ch11.tex}
+\input{chapters/ch12/ch12.tex}
+\input{chapters/ch13/ch13.tex}
+\input{chapters/ch14/ch14.tex}
+\end{document}
+
