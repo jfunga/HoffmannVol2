@@ -1,38 +1,22 @@
-# --- LaTeX temporales (mantengo los .pdf) ---
+# LaTeX aux files
 *.aux
-*.bbl
-*.bcf
-*.blg
-*.fdb_latexmk
-*.fls
-*.idx
-*.ilg
-*.ind
-*.lof
 *.log
-*.lot
-*.nav
 *.out
-*.run.xml
-*.toc
+*.fls
+*.fdb_latexmk
 *.synctex.gz
-*.synctex(busy)
-*.vrb
 *.xdv
-_minted*
-texput.log
-# latexmk / lualatex / xelatex dirs
-/build/
-out/
-
-# --- VSCode ---
-.vscode/
-.history/
-*.code-workspace
-
-# --- macOS ---
-.DS_Store
-
-# --- backups locales comunes ---
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
 *.bak
 *~
+
+# Build dir
+out/*
+!out/main.pdf   # conserva el PDF final si quieres
+
+# macOS
+.DS_Store

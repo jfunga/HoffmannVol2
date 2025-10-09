@@ -465,11 +465,3 @@
 % FIN DE style.tex
 % =============================
 
-
-% --- Constantes matemáticas (Step 3) ---
-\newcommand{\ee}{\mathrm{e}} % Constante de Euler en recta
-
-% --- Paired delimiters (para valores absolutos, paréntesis grandes automáticos) ---
-\usepackage{mathtools} % si no está ya cargado
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}
-\DeclarePairedDelimiter\paren{\lparen}{\rparen}

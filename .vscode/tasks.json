@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Clean + Compile LaTeX",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "latexmk -C && latexmk -xelatex -f -interaction=errorstopmode -file-line-error -outdir=out main.tex"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

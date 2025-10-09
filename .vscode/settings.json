@@ -1,0 +1,8 @@
+{
+  "latex-workshop.linting.ignoreWarning": [
+    "Unknown environment ejemplos1bullet",
+    "Unknown environment ejemplos2short",
+    "Unknown environment ejemplos2shortbull",
+    "Unknown environment ejemplos3bullet"
+  ]
+}
