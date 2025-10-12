@@ -1,0 +1,89 @@
+% !TEX root = ../main.tex
+\chapter*{ÍNDICE}
+\markboth{ÍNDICE}{ÍNDICE}
+
+% ===== columnas (1: Nº, 2: signo, 3: título) =====
+\newlength{\NumW}     \setlength{\NumW}{0.90cm}   % Nº
+\newlength{\SignW}    \setlength{\SignW}{1.20cm}  % signo
+\newlength{\GapSmall} \setlength{\GapSmall}{0.50em} % espacio pequeño sig→título
+
+% Fila suelta (una tabla por fila ⇒ LaTeX puede cortar entre filas)
+\newcommand{\IndiceFila}[3]{%
+  \noindent\textbf{CAPÍTULO #1}\par
+  \noindent\begin{tabularx}{\textwidth}{@{} >{\raggedleft\arraybackslash}p{\SignW} @{\hspace{\GapSmall}} X @{}}
+    {\large\boldmath$#2$} & \textbf{#3}
+  \end{tabularx}\par\vspace{-\parskip}
+}
+
+% Subtítulos bajo el inicio del título (col. 3)
+\newlength{\BeforeTitle}
+\newlength{\SubIndent}\setlength{\SubIndent}{0.6em}
+\setlength{\BeforeTitle}{0pt}
+\addtolength{\BeforeTitle}{\SignW}
+\addtolength{\BeforeTitle}{\GapSmall}
+\addtolength{\BeforeTitle}{\SubIndent}
+\newcommand{\IndiceSubtitulos}[1]{%
+  \noindent\makebox[\BeforeTitle][l]{}%
+  \begin{minipage}[t]{\dimexpr\textwidth-\BeforeTitle\relax}
+    
+    \begin{itemize}[label={}, labelsep=0pt, leftmargin=0pt, itemsep=0.2em, topsep=0.1em]
+      #1
+    \end{itemize}
+  \end{minipage}\par
+}
+
+% =========================
+% PARTE I
+% =========================
+\begin{center}{\Large\bfseries Parte I — El universo de los números y sus propiedades}\end{center}
+\begin{center}{\vspace{-0.4em}\Large\itshape Fundamentos del pensamiento algebraico}\end{center}
+
+\IndiceFila{1}{\Large\pi}{NÚMEROS IRRACIONALES}
+\IndiceSubtitulos{
+  \item RAZÓN O RELACIÓN
+  \item NÚMEROS RACIONALES
+  \item NÚMEROS IRRACIONALES
+  \item Historia del número $\pi$
+  \item NÚMEROS REALES
+}
+
+\IndiceFila{2}{a^n}{POTENCIACIÓN}
+\IndiceSubtitulos{
+  \item POTENCIA
+  \item Producto de potencias de igual base
+  \item Potencia de potencia
+  \item Potencia de un producto
+  \item Cociente de potencias de igual base
+  \item Exponentes negativos (1)
+  \item Exponentes negativos (2)
+  \item Potencia de una fracción
+  \item Exponentes negativos 
+  \item El exponente cero
+}
+
+\IndiceFila{3}{\sqrt[\leftroot{-2}\uproot{4}n]{\ }}{RADICACIÓN}
+\IndiceFila{4}{\tfrac{1}{\sqrt{\ }}}{RACIONALIZACIÓN}
+
+% =========================
+% PARTE II
+% =========================
+\begin{center}{\Large\bfseries Parte II — Las ecuaciones y su lenguaje}\end{center}
+\begin{center}{\vspace{-0.4em}\Large\itshape De lo lineal a lo cuadrático}\end{center}
+
+\IndiceFila{5}{x^2}{ECUACIÓN DE SEGUNDO GRADO}
+\IndiceFila{6}{\{\}}{SISTEMAS DE ECUACIONES}
+\IndiceFila{7}{\geq}{INECUACIONES}
+\IndiceFila{8}{|x|}{VALOR ABSOLUTO}
+
+% =========================
+% PARTE III
+% =========================
+\begin{center}{\Large\bfseries Parte III — El plano y la forma}\end{center}
+\begin{center}{\vspace{-0.4em}\Large\itshape Del álgebra a la geometría}\end{center}
+
+\IndiceFila{9}{\mathbb{R}^2}{EL PLANO REAL}
+\IndiceFila{10}{f(x)}{FUNCIONES}
+\IndiceFila{11}{\leq}{INECUACIONES CUADRÁTICAS}
+\IndiceFila{12}{\mathbb{D}}{ECUACIONES DIOFÁNTICAS}
+\IndiceFila{13}{\triangle}{GEOMETRÍA (Pitágoras, Tales, Euclides)}
+\IndiceFila{14}{\infty}{\textbf{Problemas de recapitulación}} % negritas, no mayúsculas

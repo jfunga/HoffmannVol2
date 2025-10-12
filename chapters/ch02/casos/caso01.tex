@@ -12,18 +12,23 @@
 %\end{Caso}
 
 
-
 % =============================
 % CASO 1 - PRUEBA DE A POCO
 % =============================
 
 \begin{Caso}[Cálculo de expresión con potencias de distintos signos]
   \casolinea{Calcular la siguiente expresión:}{(-4)^2 - (-2)^3 + (-3)^3 - (-1)^{10}}
-  \casolinea{Calculamos, en primer lugar, cada una de las \\ potencias
-  señaladas encerrando en corchetes \\ los resultados:}{= [16] - [-8] + [-27] - [1]}
+
+  % NUEVA micro-observación (una línea)
+  \casolinea{Recuerda: potencias \textit{pares} dan resultado positivo; potencias \textit{impares} conservan el signo.}{}
+
+  \casolinea{Calculamos primero cada potencia (encerramos en corchetes los resultados):}{= [16] - [-8] + [-27] - [1]}
   \casolinea{Eliminamos los signos de agrupación:}{= 16 + 8 - 27 - 1}
-  \casolinea{Sumando los términos obtenemos:}{= \fbox{$-4$}}
+
+  % CAMBIO: usar \Resultado{-4} en vez de \fbox{$-4$}
+  \casolinea{Sumamos los términos:}{= \Resultado{-4}}
 \end{Caso}
+
 
 
 

@@ -10,7 +10,6 @@
 % -------------------------------------------------
 \usepackage{fontspec}          % Fuentes (XeLaTeX/LuaLaTeX)
 \usepackage{unicode-math}      % Matemáticas con Unicode
-\usepackage{mathtools}         % (incluye amsmath)
 
 % Idioma (después de fontspec)
 \usepackage{polyglossia}
@@ -23,7 +22,6 @@
 % Párrafo: estilo editorial (espaciado entre párrafos, sin sangría)
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
-
 
 % -------------------------------------------------
 % 1) DIMENSIONES DE PÁGINA Y ENLACES
@@ -40,19 +38,16 @@
   footskip=0.4in
 ]{geometry}
 
+\usepackage[hidelinks]{hyperref} % enlaces limpios
 
 % -------------------------------------------------
 % 2) GRÁFICOS, COLOR Y DIBUJO
 % (Portada/Apertura necesita logo pronto)
 % -------------------------------------------------
-
-\usepackage{xcolor}
 \usepackage{graphicx}
+\usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing}
-
-\usepackage{microtype}
-\usepackage[hidelinks]{hyperref} % enlaces limpios
 
 % Logo (digital/impresión)
 \newif\ifdigital
@@ -178,14 +173,16 @@
 % -------------------------------------------------
 % 6) MATEMÁTICAS, ENTORNOS Y ESPACIADOS
 % -------------------------------------------------
+\usepackage{mathtools}
+\usepackage{amsthm}
 \usepackage{empheq}
 \usepackage{siunitx}     % números/decimales
 \usepackage{tasks}       % listas tipo ejercicios en columnas
+\usepackage{array,tabularx}
 \usepackage{multicol}
 \usepackage{relsize}
 \usepackage{soul}        % subrayados
 \usepackage{changepage}  % márgenes locales
-\usepackage{array,tabularx}
 
 % Espaciado vertical en ecuaciones (compacto)
 \makeatletter
@@ -464,29 +461,6 @@
 % Casos particulares (ej.: años, cap. 1)
 \newcommand{\anios}{\text{años}}
 
-% ===== Índice: macro de línea con icono a la derecha =====
-\newcommand{\IndiceCap}[2]{%
-  \noindent\textbf{#1}\hfill{\large\ensuremath{#2}}\\
-}
-
-% ===== Set de íconos (ajustables) para cada capítulo =====
-% Nota: usa símbolos compactos (no expresiones largas) para evitar “listados raros”.
-\newcommand{\iconIrracionales}{\pi}               % Cap. 1
-\newcommand{\iconPotenciacion}{x^n}               % Cap. 2
-\newcommand{\iconRadicacion}{\sqrt{\phantom{x}}}  % Cap. 3 (raíz “vacía” estética)
-\newcommand{\iconRacionalizacion}{\dfrac{1}{\sqrt{\phantom{x}}}} % Cap. 4
-\newcommand{\iconCuadratica}{x^2}                 % Cap. 5 (ícono simple para cuadrática)
-\newcommand{\iconSistemas}{\{\}}                  % Cap. 6 (llave como “sistema” sin listar ecuaciones)
-\newcommand{\iconInecuaciones}{x>a}               % Cap. 7
-\newcommand{\iconValorAbsoluto}{|x|}              % Cap. 8
-\newcommand{\iconPlano}{(x,y)}                    % Cap. 9
-\newcommand{\iconFunciones}{f(x)}                 % Cap.10
-\newcommand{\iconIneqCuad}{x^2>0}                 % Cap.11
-\newcommand{\iconDiofanticas}{ax+by=c}            % Cap.12
-\newcommand{\iconGeometria}{\triangle}            % Cap.13
-\newcommand{\iconRecap}{\sum}                     % Cap.14
-
-
 % =============================
 % FIN DE style.tex
 % =============================
@@ -496,112 +470,9 @@
 \newcommand{\ee}{\mathrm{e}} % Constante de Euler en recta
 
 % --- Paired delimiters (para valores absolutos, paréntesis grandes automáticos) ---
+\usepackage{mathtools} % si no está ya cargado
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 \DeclarePairedDelimiter\paren{\lparen}{\rparen}
 
 % --- Resultado enmarcado (uso: \Resultado{-4}) ---
 \newcommand{\Resultado}[1]{\fbox{\(#1\)}}
-
-% --- Nota del profesor (caja transversal) ---
-\newtcolorbox{ProfeTip}[1][]{enhanced, breakable,
-  colback=blue!3, colframe=blue!55!black, boxrule=.5pt, arc=2pt,
-  left=1em, right=1em, top=.6em, bottom=.6em,
-  borderline west={2pt}{0pt}{blue!60},
-  fonttitle=\bfseries, title={Nota del profesor},
-  #1
-}
-
-% ===== Listado exclusivo para "Importancia actual" =====
-% Uso: \begin{importancialist} \item ... \end{importancialist}
-\newlist{importancialist}{itemize}{1}
-\setlist[importancialist]{%
-  label=\ding{228},% marcador distinto a {aprende}
-  leftmargin=*,    % alinear con el texto
-  itemsep=.25em,   % separación entre ítems
-  topsep=.2em,     % separación con párrafo previo
-  parsep=0pt,
-  partopsep=0pt,
-  align=left
-}
-% =======================================================
-
-% ---- Ajuste visual para la lista "Importancia actual" (cap. 5) ----
-% Distinto al estilo de {aprende}: usa check ✔ y más aire entre ítems.
-\setlist[importancialist]{%
-  label=\ding{51},     % ✔ (pifont)
-  labelsep=.55em,      % separación etiqueta-texto
-  leftmargin=*,        % alinear al margen
-  itemsep=.35em,       % aire entre ítems
-  topsep=.25em,        % aire con el párrafo previo
-  parsep=0pt,partopsep=0pt,
-  align=left
-}
-% -------------------------------------------------------------------
-
-% ===== Estilo global para listas genéricas (itemize) =====
-% No afecta a listas personalizadas creadas con enumitem (aprende, reseñaitem, importancialist).
-\setlist[itemize]{%
-  label=\textbullet,  % bullet •
-  leftmargin=*,       % alineado limpio al texto
-  itemsep=.25em,      % aire entre ítems
-  topsep=.25em,       % aire con el párrafo previo
-  parsep=0pt, partopsep=0pt
-}
-% =========================================================
-
-% =========================================================
-% POLÍTICA DE PUNTUACIÓN — Math Hoffmann
-% ---------------------------------------------------------
-% No se coloca punto (.) ni ningún signo de puntuación al
-% final de expresiones matemáticas, ni en modo inline ($...$)
-% ni en display (\[...\]).
-% Esto sigue el estilo editorial de Jorge Gid Hoffmann.
-% =========================================================
-
-% =========================================================
-% POLÍTICA DE PUNTUACIÓN — Math Hoffmann
-% ---------------------------------------------------------
-% No se coloca punto (.) ni ningún signo de puntuación al
-% final de expresiones matemáticas, ni en modo inline ($...$)
-% ni en display (\[...\]).
-% Esto sigue el estilo editorial de Jorge Gid Hoffmann.
-% =========================================================
-
-% ===== Wrappers de espaciado para páginas de INTRO =====
-% Neutraliza \parskip entre bloques y estandariza "aire" arriba/abajo.
-
-% Pegamento: elimina el salto de párrafo que añade \parskip
-\newcommand{\IntroGlue}{\vspace{-\parskip}}
-
-% Subtítulo de intro con espaciado uniforme:
-%   (igual que tu patrón actual) 0.5cm arriba, subtítulo, 1em debajo, sin sumar \parskip
-\newcommand{\IntroSubtitulo}[1]{%
-  \vspace{0.5cm}%
-  \subtitulocapitulo{#1}%
-  \vspace{1em}\vspace{-\parskip}%
-}
-
-% Section y Subsection "estrellas" para la intro: mismas fuentes, sin sumar \parskip después
-\newcommand{\IntroSection}[1]{%
-  \vspace{-0.3em}%
-  \section*{#1}%
-  \vspace{-0.15em}\vspace{-\parskip}%
-}
-\newcommand{\IntroSubsection}[1]{%
-  \subsection*{#1}\IntroGlue%
-}
-
-% Cita en la intro con aire controlado simétrico
-\newenvironment{IntroQuote}{%
-  \vspace{0.6em}\begin{quote}%
-}{%
-  \end{quote}\vspace{0.6em}\IntroGlue%
-}
-% ===== Fin wrappers de INTRO =====
-
-
-
-
-
-
-

@@ -1,22 +1,16 @@
-# LaTeX aux files
+# --- LaTeX auxiliares / builds ---
 *.aux
 *.log
-*.out
 *.fls
 *.fdb_latexmk
-*.synctex.gz
-*.xdv
+*.synctex*
 *.toc
-*.lof
-*.lot
-*.bbl
-*.blg
-*.bak
-*~
+*.out
+out/
 
-# Build dir
-out/*
-!out/main.pdf   # conserva el PDF final si quieres
+# Backups locales
+backups/
 
-# macOS
+# Sistema / editor
 .DS_Store
+.vscode/
