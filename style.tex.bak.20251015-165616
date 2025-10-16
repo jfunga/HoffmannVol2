@@ -178,12 +178,7 @@
 % -------------------------------------------------
 % 6) MATEMÁTICAS, ENTORNOS Y ESPACIADOS
 % -------------------------------------------------
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{fontspec}
-\setmainfont{TeX Gyre Termes}
-\usepackage{unicode-math}
-\setmathfont{STIX Two Math}
+\usepackage{empheq}
 \usepackage{siunitx}     % números/decimales
 \usepackage{tasks}       % listas tipo ejercicios en columnas
 \usepackage{multicol}
@@ -314,6 +309,9 @@
 % 8) EJERCICIOS — bloque + entorno unificado
 % -------------------------------------------------
 
+% Requiere: \usepackage{tcolorbox,enumitem,multicol}
+% (y \usepackage{xparse} para NewDocumentEnvironment si no está ya)
+
 % Contador global (igual que ya tenías)
 \newcounter{ejercicioGlobal}
 \renewcommand{\theejercicioGlobal}{\arabic{ejercicioGlobal}}
@@ -403,13 +401,14 @@
 \NewDocumentEnvironment{ejemplos3bullet}{}{ \begin{ejemplos}[3][\textbullet] }{ \end{ejemplos} }
 
 
+% -------------------------------------------------
+% 10) CASOS — simple y estable
+% -------------------------------------------------
 
-% -------------------------------------------------
-% 10) CASOS Y TABLAS AUXILIARES
-% -------------------------------------------------
 \newcounter{caso}[chapter]
 \renewcommand{\thecaso}{\arabic{caso}}
 
+% ===== CASO 1: dos columnas (TEXTO | MATES) =====
 \NewDocumentEnvironment{Caso}{ O{} }{%
   \refstepcounter{caso}%
   \par\medskip
@@ -427,12 +426,63 @@
   \par\vspace{1em}
 }
 
+% Línea de caso (dos columnas). INTERFAZ ORIGINAL.
 \newcommand{\casolinea}[2]{%
   \noindent\hspace*{1.5em}%
   \begin{tabularx}{0.92\linewidth}{@{}X@{\hspace{1.5em}}>{\raggedright\arraybackslash}m{0.35\linewidth}@{}}%
     #1 & $\displaystyle #2$\\[0.8ex]%
   \end{tabularx}\par
 }
+
+% ===== CASO 2: mates/figura debajo a ancho completo =====
+\NewDocumentEnvironment{CasoL}{ O{} }{%
+  \refstepcounter{caso}%
+  \par\medskip
+  \noindent
+  \tikz[baseline=(X.base)]{
+    \node[
+      fill=yellow!35, rounded corners=1pt,
+      inner xsep=4pt, inner ysep=3pt,
+      text height=2ex, text depth=.5ex, anchor=base west
+    ] (X) {\textbf{\Large Caso \thecaso}%
+      \if\relax\detokenize{#1}\relax\else~–~\textbf{#1}\fi};
+  }%
+  \par\vspace{1em}
+}{%
+  \par\vspace{1em}
+}
+
+% Espacio configurable tras la fórmula de \casolineaW
+\providecommand{\casoWpostskip}{0.6em}
+
+% \casolineaW: texto + fórmula/figura debajo (ancho completo)
+\makeatletter
+\@ifundefined{casolineaW}{%
+  \newcommand{\casolineaW}[2]{%
+    \noindent\hspace*{1.5em}%
+    \begin{minipage}{0.92\linewidth}
+      #1\par\vspace{0.4ex}%
+      \[
+        \displaystyle #2
+      \]%
+      \vspace{\casoWpostskip}%
+    \end{minipage}\par
+  }%
+}{%
+  \renewcommand{\casolineaW}[2]{%
+    \noindent\hspace*{1.5em}%
+    \begin{minipage}{0.92\linewidth}
+      #1\par\vspace{0.4ex}%
+      \[
+        \displaystyle #2
+      \]%
+      \vspace{\casoWpostskip}%
+    \end{minipage}\par
+  }%
+}
+\makeatother
+
+
 
 % -------------------------------------------------
 % 11) UTILIDADES GENERALES
@@ -572,12 +622,19 @@
 % Esto sigue el estilo editorial de Jorge Gid Hoffmann.
 % =========================================================
 
-
+% ===== Wrappers de espaciado para páginas de INTRO =====
+% Neutraliza \parskip entre bloques y estandariza "aire" arriba/abajo.
 
 % Pegamento: elimina el salto de párrafo que añade \parskip
 \newcommand{\IntroGlue}{\vspace{-\parskip}}
 
-
+% Cita en la intro con aire controlado simétrico
+\newenvironment{IntroQuote}{%
+  \vspace{0.6em}\begin{quote}%
+}{%
+  \end{quote}\vspace{0.6em}\IntroGlue%
+}
+% ===== Fin wrappers de INTRO =====
 
 
 

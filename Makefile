@@ -30,7 +30,7 @@ _compile:
 	echo "% auto wrapper" > __langwrap.tex
 	echo "\\def\\booklang{$(BOOKLANG)}" >> __langwrap.tex
 	echo "\\input{main.tex}" >> __langwrap.tex
-	latexmk -silent __langwrap.tex
+	latexmk -xelatex -silent __langwrap.tex
 	@mkdir -p out
 	@mv -f out/__langwrap.pdf out/main-$(BOOKLANG).pdf || true
 	@rm -f __langwrap.tex
