@@ -1,13 +1,15 @@
-# ==============================================
-# LATEXMK CONFIG — Usa XeLaTeX y suprime warnings falsos
-# ==============================================
+# .latexmkrc — XeLaTeX + outdir
+$out_dir = 'out';
+$aux_dir = 'out';
 
-$pdf_mode = 1;
-$pdflatex = 'xelatex -interaction=nonstopmode -synctex=1 %O %S';
+$pdflatex = 'xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory='.$out_dir.' %O %S';
+$bibtex   = 'biber %O %B';
 
-# --- Ignorar advertencias de "end occurred inside a group"
-@default_excluded_warnings = ('end occurred inside a group');
+$clean_ext = 'acn acr alg aux bbl bcf blg fdb_latexmk fls glo glg gls idx ilg ind ist lof log lol lot lox out run.xml synctex.gz toc xdv';
 
-# --- Forzar visualización del PDF final automáticamente
-$pdf_previewer = 'open';
+@default_files = ('main.tex');
 
+$pdf_mode   = 1;
+$max_repeat = 5;
+$recorder   = 1;
+$diagnostics = 1;
