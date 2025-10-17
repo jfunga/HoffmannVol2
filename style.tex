@@ -181,12 +181,17 @@
 % Bloque de capítulo (símbolo + título) y marcas para pies
 % Uso: \fullchapter{Nº}{Símbolo}{Título}
 \newcommand{\fullchapter}[3]{%
-  \chapter*{}%
-  \addcontentsline{toc}{chapter}{#3}%
-  \markboth{#2\; #3}{}%
-  \renewcommand{\chaptertitle}{#2\; #3}%
+  \clearpage% asegura corte de página y vacía floats pendientes
+  \chapter*{}% mantiene el estilo 'plain' sin numeración visible
+  \refstepcounter{chapter}% avanza el contador (resetea secciones/figs/tabs/eqs atados a chapter)
+  \phantomsection% crea ancla para hyperref antes de la entrada en el TOC
+  \addcontentsline{toc}{chapter}{#3}% entrada limpia en el índice
+  \markboth{#2\; #3}{}% encabezados/pies (leftmark/rightmark)
+  \renewcommand{\chaptertitle}{#2\; #3}% macro usada en el pie (fancyhdr)
+  % (opcional) etiqueta de capítulo para referencias cruzadas
+  \label{ch:\thechapter}%
   \begin{center}
-    \vspace*{-2cm} % ajuste fino vertical
+    \vspace*{-2cm}% ajuste fino vertical (como lo tenías)
     {\fontsize{22}{24}\selectfont\bfseries #1}\par\vspace{1ex}
     {\fontsize{20}{22}\selectfont\bfseries \scalebox{1.4}{#2} \quad #3}\par\vspace{0.2ex}
     \rule{\linewidth}{1pt}\\[-1.2ex]
@@ -200,7 +205,7 @@
   \noindent{\fontsize{15}{17}\selectfont\bfseries #1}\par\vspace{1ex}%
 }
 
-% Secciones / Subsecciones
+% Secciones / Subsecciones (mismo look & feel)
 \titleformat{\section}
   {\normalfont\bfseries\fontsize{14}{16}\selectfont}{\thesection}{1.5em}{}
 \titlespacing*{\section}{0pt}{1.5ex}{1ex}
@@ -209,16 +214,24 @@
   {\normalfont\bfseries\fontsize{12}{14}\selectfont}{\thesubsection}{1em}{}
 \titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
 
+
 % -------------------------------------------------
-% 5) INTRO DE CAPÍTULO — listas y cita manual
-% (la cita ya la haces en intro.tex con flushright; aquí solo helpers)
+% 5) INTRO DE CAPÍTULO — listas y cita manual (reforzado)
 % -------------------------------------------------
 \usepackage{enumitem,pifont}
-\setlist[itemize]{itemsep=0.3ex, topsep=0.5ex}
+
+% Lista global básica (no cambia tu look fuera de 'aprende')
+\setlist[itemize]{itemsep=0.3ex, topsep=0.5ex, parsep=0pt, partopsep=0pt}
 
 % Lista “¿Qué vas a aprender?”
 \newlist{aprende}{itemize}{1}
-\setlist[aprende]{label=\ding{228}, leftmargin=2em, itemsep=.25em, topsep=.6em}
+\setlist[aprende]{%
+  label=\ding{228},     % mismo símbolo que usas
+  leftmargin=2em,
+  itemsep=.25em,
+  topsep=.6em,
+  labelsep=.6em
+}
 
 % +1pt para la cita (adaptativo al tamaño actual)
 \makeatletter
@@ -234,20 +247,39 @@
 \newcommand{\MHSizeAuthor}[1]{{\fontsize{15}{18}\selectfont #1}}
 \newcommand{\AuthorSC}[1]{{\textsc{#1}}}
 
+% (Opcional, no invasivo) Entorno para la cita de apertura del capítulo
+% Uso:
+% \begin{introquote}[Autor, Obra]
+%   Texto de la cita...
+% \end{introquote}
+\NewDocumentEnvironment{introquote}{O{} +b}{%
+  \begin{flushright}\oneptup\itshape
+}{%
+  \par\smallskip
+  {\normalfont\normalsize\upshape--- #1}%
+  \end{flushright}%
+}
+
+
 % -------------------------------------------------
-% 6) MATEMÁTICAS, ENTORNOS Y ESPACIADOS
+% 6) MATEMÁTICAS, ENTORNOS Y ESPACIADOS (robusto)
 % -------------------------------------------------
+
+% Paquetes (evitar dobles cargas y conflictos)
 \usepackage{empheq}
-\usepackage{siunitx}     % números/decimales
-\usepackage{tasks}       % listas tipo ejercicios en columnas
+
+% siunitx ya está cargado en el bloque 2; por seguridad, no lo recargamos aquí
+% \usepackage{siunitx} % <- NO recargar para evitar avisos; usamos sus macros
+
+\usepackage{tasks}       % listas de ejercicios en columnas
 \usepackage{multicol}
 \usepackage{relsize}
-\usepackage{soul}        % subrayados
+\usepackage{soul}        % subrayados/realces (NO usar dentro de fórmulas)
 \usepackage{changepage}  % márgenes locales
 \usepackage{array,tabularx}
-\usepackage{amsmath} 
+% \usepackage{amsmath}   % <- NO cargar: ya viene vía mathtools (bloque 0)
 
-% Espaciado vertical en ecuaciones (compacto)
+% Espaciado vertical en ecuaciones (compacto y estable)
 \makeatletter
 \g@addto@macro\normalsize{%
   \setlength\abovedisplayskip{3pt}%
@@ -257,45 +289,73 @@
 }
 \makeatother
 
-% Notación rápida en TOC (símbolos grandes)
+% Notación rápida dentro del TOC (símbolos grandes)
 \newcommand{\tocmath}[1]{{\Large $#1$}}
 
-% Números y decimales (ES/EN)
-\sisetup{
-  output-decimal-marker = {,}, % decimal = coma
-  group-separator = {.},       % miles = punto
-  group-minimum-digits = 4
-}
+% ---------- siunitx helpers (coherentes con el bloque 2) ----------
+% Formato general se fija en el BLOQUE 2:
+%   \sisetup{output-decimal-marker = {,}, group-separator = {.}, ...}
+
+% Español forzado (coma decimal) en contexto puntual
 \newcommand{\numes}[1]{%
   \begingroup
-  \sisetup{output-decimal-marker = {,}, group-separator = {}, group-minimum-digits = 4}%
+  \sisetup{
+    output-decimal-marker = {,}, % coma decimal
+    group-separator = {.},       % miles con punto
+    group-minimum-digits = 4
+  }%
   \num{#1}%
   \endgroup
 }
+
+% Inglés forzado (punto decimal) en contexto puntual
 \newcommand{\numen}[1]{%
   \begingroup
-  \sisetup{output-decimal-marker = {.}, group-separator = {,}}%
-  \ensuremath{\num{#1}}%
+  \sisetup{
+    output-decimal-marker = {.}, % punto decimal
+    group-separator = {,}
+  }%
+  \num{#1}%
   \endgroup
 }
 
 % Notación decimal periódica
-\newcommand{\periodo}[1]{\overline{#1}}
-\newcommand{\periodoen}[1]{\overline{#1}}
-\newcommand{\periodico}[2]{%
-  \numes{#1}\;#2\;#2\;#2\ldots \;=\; \numes{#1}\overline{#2}%
+\newcommand{\periodo}[1]{\overline{#1}}     % 1.\periodo{23}
+\newcommand{\periodoen}[1]{\overline{#1}}   % alias si luego activas EN
+\newcommand{\periodico}[2]{% \periodico{1,}{23} -> 1,\overline{23}
+  \numes{#1}\,\overline{#2}%
+}
+
+% ---------- Ajustes útiles para 'tasks' (no cambia tu look) ----------
+% Etiqueta alineada y separación mínima entre ítems
+\settasks{
+  label-format = {\normalfont},
+  label-align  = left,
+  item-indent  = 1.25em,
+  column-sep   = 1.2em,
+  after-item-skip = .25ex
 }
 
 % -------------------------------------------------
 % 7) CAJAS Y BLOQUES (tcolorbox) — usados en cuerpo
 % -------------------------------------------------
-\usepackage[most]{tcolorbox}
+
+% Cargar tcolorbox sólamente si no está cargado (evita dobles cargas)
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{%
+  \usepackage[most]{tcolorbox} % skins, breakable, theorems, etc.
+}
+\makeatother
 \tcbuselibrary{theorems,skins}
 
-% Quote redefinido (estilo suave)
+% -------------------------------------------------
+% CITA (quote) — tcolorbox suave, con salto de página si es larga
+% Uso: \begin{quote} Texto de la cita. \end{quote}
+% Notas: margenes internos 2cm; cursiva; 'breakable' permite partir en páginas
 \renewenvironment{quote}{%
   \begin{tcolorbox}[
     enhanced,
+    breakable,
     colback=black!5,
     colframe=white,
     boxrule=0pt,
@@ -308,27 +368,52 @@
   \end{tcolorbox}
 }
 
-% Bloques varios
+% -------------------------------------------------
+% RESEÑA PLANA — bloque de texto simple sin marco
+% Uso: \begin{reseñaplana} ... \end{reseñaplana}
 \newenvironment{reseñaplana}{\par\noindent\ignorespaces}{\par}
+
+% RESEÑA ÍTEMS — lista con viñeta \ding{228}
+% Uso: \begin{reseñaitem} \item ... \end{reseñaitem}
 \newenvironment{reseñaitem}{%
   \renewcommand\labelitemi{\ding{228}}%
   \begin{itemize}[leftmargin=2em]%
 }{\end{itemize}}
+
+% INTRO BLOCK — encabezado alto + cita estilizada (reutiliza 'quote')
+% Uso: \begin{introblock}{Título} ... \end{introblock}
 \newenvironment{introblock}[1]{%
   \vspace{2ex}\noindent\textbf{\MakeUppercase{#1}}%
   \begin{quote}\itshape
 }{\end{quote}\vspace{2ex}}
-\newenvironment{temablock}{%
-  \begin{tcolorbox}[colback=white,colframe=black!40,boxrule=0.4pt,
-    sharp corners, enhanced, breakable, title={Explicación}]%
-}{\end{tcolorbox}}
-\newenvironment{cierreblock}{%
-  \begin{tcolorbox}[colback=black!5,colframe=black!80,boxrule=0.8pt,
-    sharp corners, enhanced, breakable, title={Reflexión final}]%
+
+% -------------------------------------------------
+% TEMA BLOCK — caja de explicación (título opcional)
+% Uso: \begin{temablock} ... \end{temablock}
+%      \begin{temablock}[Otro título] ... \end{temablock}
+\newenvironment{temablock}[1][Explicación]{%
+  \begin{tcolorbox}[%
+    colback=white, colframe=black!40, boxrule=0.4pt,
+    sharp corners, enhanced, breakable,
+    title={#1}%
+  ]%
 }{\end{tcolorbox}}
 
-% Caja apertura de capítulo (si se usa)
-% --- Definición de la caja ---
+% CIERRE BLOCK — caja de cierre/reflexión (título opcional)
+% Uso: \begin{cierreblock} ... \end{cierreblock}
+%      \begin{cierreblock}[Conclusión] ... \end{cierreblock}
+\newenvironment{cierreblock}[1][Reflexión final]{%
+  \begin{tcolorbox}[%
+    colback=black!5, colframe=black!80, boxrule=0.8pt,
+    sharp corners, enhanced, breakable,
+    title={#1}%
+  ]%
+}{\end{tcolorbox}}
+
+% -------------------------------------------------
+% CAPÍTULO BOX — caja ancha para apertura de capítulo
+% Uso: \begin{capitulobox} Texto destacado de apertura... \end{capitulobox}
+% Notas: centra el contenido, aumenta 2pt el tamaño de fuente dentro
 \newtcolorbox{capitulobox}{%
   enhanced, breakable,
   colback=yellow!10, colframe=black, boxrule=0.6pt,
@@ -339,41 +424,58 @@
   after upper={\end{minipage}\end{center}\endgroup}
 }
 
-% --- Helper justo debajo (perfectamente válido) ---
+% Helper de tamaño +2pt para 'capitulobox'
 \makeatletter
 \newcommand{\capituloboxPlusTwo}{%
   \fontsize{\dimexpr\f@size pt + 2pt\relax}{\baselineskip}\selectfont}
 \makeatother
 
-% ==============
-
-% Caja de definición
-\newtcolorbox{defbox}{%
+% -------------------------------------------------
+% DEF BOX — definiciones (opción: pasar claves extra/título entre [])
+% Uso: \begin{defbox} ... \end{defbox}
+%      \begin{defbox}[title={Definición clave}] ... \end{defbox}
+\newtcolorbox{defbox}[1][]{%
   enhanced, breakable,
   colback=white, colframe=black!60, boxrule=0.6pt, arc=6pt,
   left=8pt, right=8pt, top=8pt, bottom=8pt,
   before skip=10pt, after skip=10pt,
-  width=0.9\textwidth, center
+  width=0.9\textwidth, center,
+  #1 % permite opciones opcionales sin romper usos previos
 }
 
-% Caja extra/aparte
-\newtcolorbox{extrabox}{%
+% EXTRA BOX — notas/apartes (opción: claves extra/título entre [])
+% Uso: \begin{extrabox} ... \end{extrabox}
+%      \begin{extrabox}[title={Ejemplo}] ... \end{extrabox}
+\newtcolorbox{extrabox}[1][]{%
   enhanced, breakable,
   colback=white, colframe=black!70, boxrule=0.8pt, arc=4pt,
   width=0.95\textwidth, center,
   left=10pt, right=10pt, top=10pt, bottom=10pt,
-  before skip=16pt, after skip=16pt
+  before skip=16pt, after skip=16pt,
+  #1 % permite opciones opcionales sin romper usos previos
 }
 
+
 % -------------------------------------------------
-% 8) EJERCICIOS — bloque + entorno unificado
+% 8) EJERCICIOS — bloque + entorno unificado (robusto)
 % -------------------------------------------------
 
-% Contador global (igual que ya tenías)
+% Contador del bloque de ejercicios (tal como lo tenías)
 \newcounter{ejercicioGlobal}
 \renewcommand{\theejercicioGlobal}{\arabic{ejercicioGlobal}}
+% (Si algún día quieres reiniciarlo por capítulo: activar junto a 'chngcntr')
+% \counterwithin{ejercicioGlobal}{chapter}
+% \renewcommand{\theejercicioGlobal}{\thechapter.\arabic{ejercicioGlobal}}
 
-% Bloque decorativo para enmarcar un conjunto de ejercicios
+% -------------------------------------------------
+% BLOQUE DECORATIVO QUE ENVUELVE UN CONJUNTO DE EJERCICIOS
+% Uso:
+%   \begin{BloqueEjercicios}[Título opcional]
+%     ... (uno o varios entornos 'ejercicios' dentro)
+%   \end{BloqueEjercicios}
+% Notas:
+%   - Incrementa 'Ejercicio N' automáticamente en el título de la caja.
+%   - Ideal para agrupar varias tandas (1 col, 2 col, etc.) bajo un encabezado.
 \NewDocumentEnvironment{BloqueEjercicios}{ O{} }{%
   \refstepcounter{ejercicioGlobal}%
   \begin{tcolorbox}[
@@ -391,82 +493,152 @@
   \end{tcolorbox}%
 }
 
-% Helpers compartidos (seguros y locales)
-\providecommand{\task}{\item}             % por si alguien usa \task fuera
-\providecommand{\contline}[1]{\\#1}       % línea de continuación
-\providecommand{\MathItems}{}             % opcional: convierte \item en modo display si lo activas
-\providecommand{\MHcolsep}{1.8em}         % separación estándar entre columnas
+% -------------------------------------------------
+% HELPERS (locales al entorno; no tocamos el global)
+% \contline{...} → salto de línea dentro de \item cuando conviene partir
+\providecommand{\contline}[1]{\\#1}
+% Separación estándar entre columnas de ejercicios
+\providecommand{\MHcolsep}{1.8em}
 
-% ===== Entorno UNIFICADO de EJERCICIOS =====
-% Uso: \begin{ejercicios}[<cols>][<opciones enumitem>]
-%   <cols> por defecto = 1; si pones 2,3,4 activa multicol
-%   <opciones enumitem> (opcional): por si quieres ajustar labelsep, noitemsep, etc.
-\NewDocumentEnvironment{ejercicios}{ O{1} O{} }{%
+% -------------------------------------------------
+% ENTORNO UNIFICADO DE EJERCICIOS
+% Uso básico:
+%   \begin{ejercicios}               ... \end{ejercicios}      % 1 columna
+%   \begin{ejercicios}[2]            ... \end{ejercicios}      % 2 columnas
+%   \begin{ejercicios}[3][noitemsep] ... \end{ejercicios}      % 3 col + opciones enumitem
+% Variante 'estrella' (opcional, no rompe usos): todos los ítems en display math
+%   \begin{ejercicios}* [2]          ... \end{ejercicios}
+%   (no uses '*' salvo que cada \item sea una expresión matemática en bloque)
+%
+% Detalles:
+%   - Etiquetas 1), 2), 3) ... (cambia en #2 si quieres otro estilo).
+%   - Pasa opciones de enumitem en el 2º opcional: p.ej. [start=11], [noitemsep], [label=\alph*)], etc.
+\NewDocumentEnvironment{ejercicios}{ s O{1} O{} }{%
   \setlength{\columnsep}{\MHcolsep}%
-  \ifnum#1>1\begin{multicols}{#1}\fi
-  \begin{enumerate}[label=\arabic*), leftmargin=1.8em, itemsep=1.2ex, topsep=1ex, parsep=1ex, #2]%
+  \ifnum#2>1\begin{multicols}{#2}\raggedcolumns\fi% multicol si pides >1
+  \begin{enumerate}[label=\arabic*), leftmargin=1.8em, itemsep=1.2ex, topsep=1ex, parsep=1ex, #3]%
+    % Dentro del entorno, \task actúa como \item (no definimos \task global)
     \let\task\item
-    \MathItems
+    % Si usas la forma con '*', cada \item se envuelve en display math
+    \IfBooleanT{#1}{\let\olditem\item
+      \renewcommand{\item}{\olditem\begingroup\[\displaystyle}%
+    }%
 }{%
+  % Cierre de display math si usaste la forma con '*'
+  \IfBooleanT{#1}{\]\endgroup}%
   \end{enumerate}%
-  \ifnum#1>1\end{multicols}\fi
+  \ifnum#2>1\end{multicols}\fi
 }
 
-% ---- Wrappers de compatibilidad (no toques capítulos) ----
-% Definimos (no "renovamos") los atajos hacia el entorno principal 'ejercicios'
+% -------------------------------------------------
+% WRAPPERS DE COMPATIBILIDAD (NO TOCAR LLAMADOS EN CAPÍTULOS)
+% Uso:
+%   \begin{ej1col} ... \end{ej1col}
+%   \begin{ej2col} ... \end{ej2col}
+%   \begin{ej3col} ... \end{ej3col}
+%   \begin{ej4col} ... \end{ej4col}
+%   \begin{ejAuto} ... \end{ejAuto}   % alias 2 columnas
+%   \begin{ejcol}  ... \end{ejcol}    % alias 2 columnas
 \NewDocumentEnvironment{ej1col}{}{ \begin{ejercicios}[1] }{ \end{ejercicios} }
 \NewDocumentEnvironment{ej2col}{}{ \begin{ejercicios}[2] }{ \end{ejercicios} }
 \NewDocumentEnvironment{ej3col}{}{ \begin{ejercicios}[3] }{ \end{ejercicios} }
 \NewDocumentEnvironment{ej4col}{}{ \begin{ejercicios}[4] }{ \end{ejercicios} }
-
-% Alias "automático": 2 columnas por defecto (para compatibilidad con tu código)
 \NewDocumentEnvironment{ejAuto}{}{ \begin{ejercicios}[2] }{ \end{ejercicios} }
 \NewDocumentEnvironment{ejcol}{}{  \begin{ejercicios}[2] }{ \end{ejercicios} }
+
 
 % -------------------------------------------------
 % 9) EJEMPLOS — entorno unificado (multicol + enumitem)
 % -------------------------------------------------
 
-% ===== Entorno UNIFICADO de EJEMPLOS =====
-% Uso: \begin{ejemplos}[<cols>][<label>][<opciones enumitem>]
-%   <cols>   : 1 por defecto (si >1 activa multicol)
-%   <label>  : por defecto \textbullet  (pon (\alph*) si quieres a), b), c)…)
-%   <opciones enumitem> : ajustes finos (opcional)
-\NewDocumentEnvironment{ejemplos}{ O{1} O{\textbullet} O{} }{%
+% Entorno UNIFICADO de EJEMPLOS
+% Uso base:
+%   \begin{ejemplos}                ... \end{ejemplos}             % 1 col, bullets
+%   \begin{ejemplos}[2][(\alph*)]   ... \end{ejemplos}             % 2 col, a) b) c)
+%   \begin{ejemplos}[3][(\roman*)]  ... \end{ejemplos}             % 3 col, i) ii) iii)
+% Opciones extra (3er parámetro): cualquier opción de enumitem, p.ej. [start=5], [noitemsep], etc.
+%
+% Variante estrella (opcional):
+%   \begin{ejemplos}* [2][(\alph*)] ... \end{ejemplos}
+%   → Cada \item se envuelve en display math automáticamente (útil si TODOS son fórmulas).
+%
+% Parámetros:
+%   #1 (cols):   1 por defecto; si >1 activa multicol
+%   #2 (label):  \textbullet por defecto (puedes pasar (\alph*), (\roman*), etc.)
+%   #3 (opts):   opciones enumitem adicionales (opcionales)
+\NewDocumentEnvironment{ejemplos}{ s O{1} O{\textbullet} O{} }{%
   \setlength{\columnsep}{\MHcolsep}%
-  \ifnum#1>1\begin{multicols}{#1}\fi
-  \begin{enumerate}[label=#2, labelsep=0.6em,
-                    leftmargin=3.5em, itemsep=1.6ex, topsep=2ex, #3]%
+  \ifnum#2>1\begin{multicols}{#2}\raggedcolumns\fi
+  \begin{enumerate}[%
+      label=#3,                 % etiqueta (bullet / (\alph*) / (\roman*), etc.)
+      labelsep=0.6em,
+      leftmargin=*,             % enumitem calcula margen adecuado según label
+      itemsep=1.6ex,
+      topsep=2ex,
+      #4                        % opciones extra de enumitem
+  ]%
+    % Alias interno para comodidad (sin contaminar global): \task == \item
     \let\task\item
+    % Si usas la forma con '*', cada \item será display math (no mezclar con texto corrido)
+    \IfBooleanT{#1}{\let\olditem\item
+      \renewcommand{\item}{\olditem\begingroup\[\displaystyle}%
+    }%
 }{%
+  % Cierra el display del último \item si se usó la forma con '*'
+  \IfBooleanT{#1}{\]\endgroup}%
   \end{enumerate}%
-  \ifnum#1>1\end{multicols}\fi
+  \ifnum#2>1\end{multicols}\fi
 }
 
-% ---- Wrappers de compatibilidad (no toques capítulos) ----
+% ---- Wrappers de compatibilidad (no tocar llamados en capítulos) ----
 % 1 columna
+%   \begin{ejemplos1} ... \end{ejemplos1}          → a) b) c) en 1 columna
+%   \begin{ejemplos1bullet} ... \end{ejemplos1bullet} → bullets en 1 columna
 \NewDocumentEnvironment{ejemplos1}{}{ \begin{ejemplos}[1][(\alph*)] }{ \end{ejemplos} }
 \NewDocumentEnvironment{ejemplos1bullet}{}{ \begin{ejemplos}[1][\textbullet] }{ \end{ejemplos} }
 
 % 2 columnas
+%   \begin{ejemplos2short} ... \end{ejemplos2short}     → a) b) c) en 2 col
+%   \begin{ejemplos2shortbull} ... \end{ejemplos2shortbull} → bullets en 2 col
+%   \begin{ejemplos2large} ... \end{ejemplos2large}     → alias (mismo layout); si quieres, aquí puedes pasar [noitemsep] localmente
 \NewDocumentEnvironment{ejemplos2short}{}{ \begin{ejemplos}[2][(\alph*)] }{ \end{ejemplos} }
 \NewDocumentEnvironment{ejemplos2shortbull}{}{ \begin{ejemplos}[2][\textbullet] }{ \end{ejemplos} }
 \NewDocumentEnvironment{ejemplos2large}{}{ \begin{ejemplos}[2][(\alph*)] }{ \end{ejemplos} }
 
 % 3 columnas
+%   \begin{ejemplos3} ... \end{ejemplos3}              → a) b) c) en 3 col
+%   \begin{ejemplos3bullet} ... \end{ejemplos3bullet}  → bullets en 3 col
 \NewDocumentEnvironment{ejemplos3}{}{ \begin{ejemplos}[3][(\alph*)] }{ \end{ejemplos} }
 \NewDocumentEnvironment{ejemplos3bullet}{}{ \begin{ejemplos}[3][\textbullet] }{ \end{ejemplos} }
-
 
 % -------------------------------------------------
 % 10) CASOS Y TABLAS AUXILIARES
 % -------------------------------------------------
 
+% (Seguridad) Carga TikZ solo si no está cargado; este bloque usa un \tikz\node
+\makeatletter
+\@ifpackageloaded{tikz}{}{\usepackage{tikz}}
+\makeatother
+% Nota: la librería 'decorations.pathreplacing' ya se carga arriba para llaves
+
 % --- Contador de casos: reinicia en cada capítulo ---
+%   Uso: Cada \begin{CasoL}...\end{CasoL} incrementa el contador.
 \newcounter{caso}[chapter]
-\renewcommand{\thecaso}{\arabic{caso}} % Muestra 1,2,3... (sin prefijo de capítulo)
+\renewcommand{\thecaso}{\arabic{caso}} % 1,2,3... (sin prefijo de capítulo)
+
+% (Opcional) Anchos paramétricos para la variante 2 columnas
+%   Ajusta aquí si alguna vez quieres más/menos ancho sin cambiar los capítulos.
+\newcommand{\casoLeftW}{0.58\linewidth}   % texto (izquierda)
+\newcommand{\casoRightW}{0.38\linewidth}  % matemática (derecha)
 
 % ===== Caso (variante ancho completo) =====
+%   Uso:
+%     \begin{CasoL}[Título opcional]
+%       ... líneas \casolinea / \casolineaW ...
+%     \end{CasoL}
+%
+%   Render:
+%     Encabezado amarillo "Caso N — Título", luego el contenido.
 \NewDocumentEnvironment{CasoL}{ O{} }{%
   \refstepcounter{caso}%
   \par\medskip
@@ -484,24 +656,28 @@
   \par\vspace{1em}
 }
 
-% Alias para compatibilidad: 'Caso' se comporta como 'CasoL'
+% Alias para compatibilidad: 'Caso' == 'CasoL'
 \NewDocumentEnvironment{Caso}{O{}}
   {\begin{CasoL}[#1]}
   {\end{CasoL}}
 
+% -------------------------------------------------
 % Línea de Caso con contenido ANCHO COMPLETO debajo del texto
-% Uso normal: \casolineaW{texto}{expresión/figura}
-% Uso con * : \casolineaW*{texto}{bloque ya en display (aligned, tikzpicture, etc.)}
+%   Uso normal: \casolineaW{texto}{expresión/figura}
+%   Uso con * : \casolineaW*{texto}{bloque ya en display (aligned, tikzpicture, etc.)}
+%   Comportamiento:
+%     - Muestra el texto arriba (alineado a la izquierda)
+%     - Debajo, centra la matemática en su propia línea
 \NewDocumentCommand{\casolineaW}{s m m}{%
   \noindent\hspace*{1.5em}%
-  \begin{minipage}{0.92\linewidth}
+  \begin{minipage}{0.92\linewidth}% bloque ANCHO COMPLETO
     #2\par\vspace{0.4ex}%
     \noindent
     \IfBooleanTF{#1}{%
-      % versión con *: NO envolver en \[ \]
+      % versión con *: NO envolver en \[ \] (ya traes display)
       #3%
     }{%
-      % versión sin *: envolver en display math
+      % versión sin *: envolver en display math y centrar en su línea
       \[
         \displaystyle #3
       \]%
@@ -509,18 +685,24 @@
   \end{minipage}\par
 }
 
-% Variante dos columnas: texto a la izquierda, matemática a la derecha
-% Uso normal: \casolinea{texto}{expresión}
-% Uso con *   : \casolinea*{texto}{bloque en display (aligned, tikzpicture, etc.)}
+% -------------------------------------------------
+% Variante DOS COLUMNAS: texto a la izquierda, matemática a la derecha
+%   Uso normal: \casolinea{texto}{expresión}
+%   Uso con *   \casolinea*{texto}{bloque en display (aligned, tikzpicture, etc.)}
+%   Comportamiento:
+%     - Columna izq. (texto) ancho \casoLeftW
+%     - Columna der. (mates)  ancho \casoRightW, centrada en display si no usas *
 \NewDocumentCommand{\casolinea}{s m m}{%
   \noindent
-  \begin{minipage}[t]{0.58\linewidth}
+  \begin{minipage}[t]{\casoLeftW}
     #2%
   \end{minipage}\hfill
-  \begin{minipage}[t]{0.38\linewidth}
+  \begin{minipage}[t]{\casoRightW}
     \IfBooleanTF{#1}{%
+      % versión con *: NO envolver (traes display propio)
       #3%
     }{%
+      % versión sin *: display centrado en la columna
       \[
         \displaystyle #3
       \]%
@@ -528,55 +710,71 @@
   \end{minipage}\par\vspace{0.6ex}%
 }
 
-
 % -------------------------------------------------
 % 11) UTILIDADES GENERALES
 % -------------------------------------------------
+
 % Esquemas/figuras centradas con título opcional
+% Uso: \EsquemaConjuntos[Subtítulo opcional]{ruta/archivo}
+% Nota: no crea 'figure' ni \caption (no entra al LOF). Ideal para esquemas sueltos.
+%       Si el archivo no existe, no rompe: deja un marcador silencioso.
 \newcommand{\EsquemaConjuntos}[2][]{%
-  \vspace{0.5cm}
-  \begin{center}
-    \includegraphics[width=0.9\linewidth]{#2}%
+  \medskip
+  \begingroup
+    \centering
+    \IfFileExists{#2}{%
+      \includegraphics[width=.9\linewidth]{#2}%
+    }{%
+      \typeout{EsquemaConjuntos: archivo no encontrado: #2}%
+      \setlength{\fboxsep}{1pt}%
+      \fbox{\rule{.9\linewidth}{0pt}\rule{0pt}{.45\linewidth}}%
+    }%
     \if\relax\detokenize{#1}\relax\else\\[4pt]\textbf{#1}\fi
-  \end{center}
-  \vspace{0.5cm}
+  \par\endgroup
+  \medskip
 }
 
-% Fracciones en línea (ligeramente elevadas)
+% Fracciones en línea ligeramente elevadas (para texto corrido)
+% Uso: \nfrac{a}{b}  (eleva 2pt por defecto)   \nfrac[1pt]{a}{b} para ajuste fino
 \newcommand{\nfrac}[3][2pt]{%
   \raisebox{#1}{$\dfrac{#2}{#3}$}\vphantom{p_{qgj}}%
 }
 
-% Llave decorativa inferior con texto
+% Llave decorativa inferior con texto (requiere TikZ + decorations.pathreplacing)
+% Uso: \llaveabajo{EXPRESIÓN}{texto}
+% Nota: si ves error de TikZ, asegúrate de tener: \usetikzlibrary{decorations.pathreplacing}
 \newcommand{\llaveabajo}[2]{%
-  \mathrel{\tikz[baseline=(m.base)]{
+  \mathrel{\tikz[baseline=(m.base)]{%
     \node[inner sep=0pt] (m) {$#1$};
-    \draw [decorate,decoration={brace,mirror,amplitude=6pt}]
+    \draw[decorate,decoration={brace,mirror,amplitude=6pt}]
       (m.south west) -- (m.south east)
       node[midway,yshift=-9pt]{\scriptsize #2};
   }}%
 }
 
-% Estilo global de tablas
+% Estilo global de tablas (un poco más de aire y col sep moderado)
+% Efecto: aumenta alto de renglón y espacio horizontal entre columnas
 \renewcommand{\arraystretch}{1.2}
 \setlength{\tabcolsep}{0.8em}
 
-% Casos particulares (ej.: años, cap. 1)
+% Unidad frecuente en textos (años) para usar dentro de fórmulas
+% Uso: $20\,\anios$  (equivale a '20 años' manteniendo estilo)
 \newcommand{\anios}{\text{años}}
 
-% ===== Índice: macro de línea con icono a la derecha =====
+% Línea de índice de capítulo con icono a la derecha (para páginas de apertura)
+% Uso: \IndiceCap{Texto}{\iconPotenciacion}
 \newcommand{\IndiceCap}[2]{%
-  \noindent\textbf{#1}\hfill{\large\ensuremath{#2}}\\
+  \noindent\textbf{#1}\hfill{\large\ensuremath{#2}}\\%
 }
 
-% ===== Set de íconos (ajustables) para cada capítulo =====
-% Nota: usa símbolos compactos (no expresiones largas) para evitar “listados raros”.
+% Set de iconos (compactos) por capítulo — pensados para índice y encabezados
+% Sugerencia: evita expresiones largas; mejor símbolos o formas cortas.
 \newcommand{\iconIrracionales}{\pi}               % Cap. 1
 \newcommand{\iconPotenciacion}{x^n}               % Cap. 2
-\newcommand{\iconRadicacion}{\sqrt{\phantom{x}}}  % Cap. 3 (raíz “vacía” estética)
+\newcommand{\iconRadicacion}{\sqrt{\phantom{x}}}  % Cap. 3
 \newcommand{\iconRacionalizacion}{\dfrac{1}{\sqrt{\phantom{x}}}} % Cap. 4
-\newcommand{\iconCuadratica}{x^2}                 % Cap. 5 (ícono simple para cuadrática)
-\newcommand{\iconSistemas}{\{\}}                  % Cap. 6 (llave como “sistema” sin listar ecuaciones)
+\newcommand{\iconCuadratica}{x^2}                 % Cap. 5
+\newcommand{\iconSistemas}{\{\}}                  % Cap. 6
 \newcommand{\iconInecuaciones}{x>a}               % Cap. 7
 \newcommand{\iconValorAbsoluto}{|x|}              % Cap. 8
 \newcommand{\iconPlano}{(x,y)}                    % Cap. 9
@@ -586,41 +784,50 @@
 \newcommand{\iconGeometria}{\triangle}            % Cap.13
 \newcommand{\iconRecap}{\sum}                     % Cap.14
 
-
 % --- Logo de portada: macro esperada por apertura/portada.tex ---
-% Ruta del logo (respeta mayúsculas/minúsculas del archivo)
+% Uso: \MHLogo[0.18\linewidth]   (ancho opcional; por defecto 0.18\linewidth)
+% Ruta definida arriba; si falta el archivo, no rompe compilación (deja marcador)
 \providecommand{\MHLogoPath}{media/Apertura/Logo.png}
-
-% \MHLogo[<ancho>]  -> por defecto 0.18\linewidth
 \newcommand{\MHLogo}[1][0.18\linewidth]{%
   \IfFileExists{\MHLogoPath}{%
     \includegraphics[width=#1]{\MHLogoPath}%
   }{%
-    % Si no se encuentra el archivo, no romper la compilación:
     \typeout{MHLogo: archivo no encontrado en \MHLogoPath}%
-    \begingroup
-      \setlength{\fboxsep}{1pt}%
+    \begingroup\setlength{\fboxsep}{1pt}%
       \fbox{\rule{#1}{0pt}\rule{0pt}{#1}}%
     \endgroup
   }%
 }
 
+
 % =============================
-% FIN DE style.tex
+% FIN DE style.tex — UTILIDADES Y POLÍTICAS
 % =============================
 
+% -------------------------------------------------
+% 11.A  CONSTANTES / DELIMITADORES / RESULTADOS
+% -------------------------------------------------
 
-% --- Constantes matemáticas (Step 3) ---
-\newcommand{\ee}{\mathrm{e}} % Constante de Euler en recta
+% Constante de Euler (uso en texto y fórmulas): \ee
+% Ej.: \(\ee^{i\pi}+1=0\)
+\newcommand{\ee}{\mathrm{e}}
 
-% --- Paired delimiters (para valores absolutos, paréntesis grandes automáticos) ---
+% Delimitadores "paired" con tamaño automático (requiere mathtools)
+% Uso básico: \abs{x} → |x| ;   uso con tamaño auto: \abs*{\frac{a}{b}}
+% Paréntesis con autoajuste: \paren*{\frac{a}{b}}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 \DeclarePairedDelimiter\paren{\lparen}{\rparen}
 
-% --- Resultado enmarcado (uso: \Resultado{-4}) ---
+% Resultado enmarcado (para destacar un valor final en línea)
+% Uso: \Resultado{-4}  →  [-4] enmarcado
 \newcommand{\Resultado}[1]{\fbox{\(#1\)}}
 
-% --- Nota del profesor (caja transversal) ---
+% -------------------------------------------------
+% 11.B  CAJAS ÚTILES DEL PROFESOR / NOTAS
+% -------------------------------------------------
+
+% Nota del profesor (tcolorbox): bloque transversal en tono azul suave
+% Uso: \begin{ProfeTip}[title={Atajo}] ... \end{ProfeTip}
 \newtcolorbox{ProfeTip}[1][]{enhanced, breakable,
   colback=blue!3, colframe=blue!55!black, boxrule=.5pt, arc=2pt,
   left=1em, right=1em, top=.6em, bottom=.6em,
@@ -629,69 +836,51 @@
   #1
 }
 
-% ===== Listado exclusivo para "Importancia actual" =====
+% -------------------------------------------------
+% 11.C  LISTAS ESPECIALES (IMPORTANCIA ACTUAL)
+% -------------------------------------------------
+% Listado exclusivo para “Importancia actual” (estilo propio)
+% Requiere pifont (ya cargado en bloque 5).
 % Uso: \begin{importancialist} \item ... \end{importancialist}
 \newlist{importancialist}{itemize}{1}
 \setlist[importancialist]{%
-  label=\ding{228},% marcador distinto a {aprende}
-  leftmargin=*,    % alinear con el texto
-  itemsep=.25em,   % separación entre ítems
-  topsep=.2em,     % separación con párrafo previo
-  parsep=0pt,
-  partopsep=0pt,
-  align=left
-}
-% =======================================================
-
-% ---- Ajuste visual para la lista "Importancia actual" (cap. 5) ----
-% Distinto al estilo de {aprende}: usa check ✔ y más aire entre ítems.
-\setlist[importancialist]{%
-  label=\ding{51},     % ✔ (pifont)
-  labelsep=.55em,      % separación etiqueta-texto
-  leftmargin=*,        % alinear al margen
+  label=\ding{51},     % ✔ (check)
+  labelsep=.55em,      % separación etiqueta–texto
+  leftmargin=*,        % alineación al margen
   itemsep=.35em,       % aire entre ítems
   topsep=.25em,        % aire con el párrafo previo
-  parsep=0pt,partopsep=0pt,
+  parsep=0pt, partopsep=0pt,
   align=left
 }
-% -------------------------------------------------------------------
 
-% ===== Estilo global para listas genéricas (itemize) =====
-% No afecta a listas personalizadas creadas con enumitem (aprende, reseñaitem, importancialist).
+% -------------------------------------------------
+% 11.D  ESTILO GLOBAL DE LISTAS GENÉRICAS
+% -------------------------------------------------
+% Nota: armonizado con el BLOQUE 5 para no sorprender cambios.
+% Si en el futuro quieres otro “look” global, ajusta SOLO aquí.
 \setlist[itemize]{%
-  label=\textbullet,  % bullet •
-  leftmargin=*,       % alineado limpio al texto
-  itemsep=.25em,      % aire entre ítems
-  topsep=.25em,       % aire con el párrafo previo
+  label=\textbullet,   % viñeta •
+  leftmargin=*,        % alineado limpio al margen
+  itemsep=0.3ex,       % mismo aire que bloque 5
+  topsep=0.5ex,
   parsep=0pt, partopsep=0pt
 }
-% =========================================================
 
-% =========================================================
-% POLÍTICA DE PUNTUACIÓN — Math Hoffmann
-% ---------------------------------------------------------
-% No se coloca punto (.) ni ningún signo de puntuación al
-% final de expresiones matemáticas, ni en modo inline ($...$)
-% ni en display (\[...\]).
-% Esto sigue el estilo editorial de Jorge Gid Hoffmann.
-% =========================================================
+% -------------------------------------------------
+% 11.E  POLÍTICA EDITORIAL DE PUNTUACIÓN (Math Hoffmann)
+% -------------------------------------------------
+% No se coloca punto (.) ni signos de puntuación al final de
+% expresiones matemáticas, ni en inline ($...$) ni en display (\[...\]).
+% Mantener consistencia en todo el libro y la colección.
+% (Se dejó una sola versión — la duplicada fue eliminada.)
+% -------------------------------------------------
 
-% =========================================================
-% POLÍTICA DE PUNTUACIÓN — Math Hoffmann
-% ---------------------------------------------------------
-% No se coloca punto (.) ni ningún signo de puntuación al
-% final de expresiones matemáticas, ni en modo inline ($...$)
-% ni en display (\[...\]).
-% Esto sigue el estilo editorial de Jorge Gid Hoffmann.
-% =========================================================
-
-
-
-% Pegamento: elimina el salto de párrafo que añade \parskip
+% -------------------------------------------------
+% 11.F  PEGAMENTO / MICROAJUSTES
+% -------------------------------------------------
+% \IntroGlue: elimina el salto de párrafo que añade \parskip 
+% (útil para “pegar” bloques con títulos o subtítulos sin comer espaciado global).
 \newcommand{\IntroGlue}{\vspace{-\parskip}}
-
-
-
 
 
 
