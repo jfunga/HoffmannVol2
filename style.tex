@@ -486,7 +486,7 @@
     title={Ejercicio~\theejercicioGlobal \IfNoValueTF{#1}{}{:\ #1}},
     fonttitle=\bfseries, coltitle=black,
     attach boxed title to top left={yshift=-2mm, xshift=2mm},
-    boxed title style={colback=black!10, colframe=black!60, sharp corners,
+    boxed title style={colback=blue!15, colframe=black!60, sharp corners,
       boxrule=0.4pt, top=0.6mm, bottom=0.6mm, left=1mm, right=1mm}
   ]%
 }{%
@@ -611,34 +611,40 @@
 \NewDocumentEnvironment{ejemplos3}{}{ \begin{ejemplos}[3][(\alph*)] }{ \end{ejemplos} }
 \NewDocumentEnvironment{ejemplos3bullet}{}{ \begin{ejemplos}[3][\textbullet] }{ \end{ejemplos} }
 
+%   ELIMINANDO EL BULLET POINT
+
+% En style.tex
+\NewDocumentEnvironment{ejemplosplain}{ O{1} }%
+  {\begin{ejemplos}[#1][\phantom{\textbullet}]}%
+  {\end{ejemplos}}
+
+
 % -------------------------------------------------
-% 10) CASOS Y TABLAS AUXILIARES
+% 10) CASOS Y TABLAS AUXILIARES — versión final optimizada (robusta)
+% Requiere: \usepackage{xparse,array}
 % -------------------------------------------------
 
-% (Seguridad) Carga TikZ solo si no está cargado; este bloque usa un \tikz\node
+% Cargar TikZ solo si no está cargado (encabezado usa \tikz\node)
 \makeatletter
 \@ifpackageloaded{tikz}{}{\usepackage{tikz}}
 \makeatother
-% Nota: la librería 'decorations.pathreplacing' ya se carga arriba para llaves
 
 % --- Contador de casos: reinicia en cada capítulo ---
-%   Uso: Cada \begin{CasoL}...\end{CasoL} incrementa el contador.
 \newcounter{caso}[chapter]
-\renewcommand{\thecaso}{\arabic{caso}} % 1,2,3... (sin prefijo de capítulo)
+\renewcommand{\thecaso}{\arabic{caso}}
 
-% (Opcional) Anchos paramétricos para la variante 2 columnas
-%   Ajusta aquí si alguna vez quieres más/menos ancho sin cambiar los capítulos.
-\newcommand{\casoLeftW}{0.58\linewidth}   % texto (izquierda)
-\newcommand{\casoRightW}{0.38\linewidth}  % matemática (derecha)
+% ===== Parámetros de diseño =====
+\newlength{\casoIndent}    \setlength{\casoIndent}{1.5em}  % margen común a la izquierda
+\newlength{\casoLineW}     \setlength{\casoLineW}{\dimexpr\linewidth - \casoIndent\relax}
 
-% ===== Caso (variante ancho completo) =====
-%   Uso:
-%     \begin{CasoL}[Título opcional]
-%       ... líneas \casolinea / \casolineaW ...
-%     \end{CasoL}
-%
-%   Render:
-%     Encabezado amarillo "Caso N — Título", luego el contenido.
+\newlength{\casoLeftW}     \setlength{\casoLeftW}{0.58\casoLineW} % ancho columna texto
+\newlength{\casoColSep}    \setlength{\casoColSep}{1.25em}        % separación entre columnas
+\newlength{\casoRightW}    \setlength{\casoRightW}{\dimexpr\casoLineW - \casoLeftW - \casoColSep\relax}
+
+\newlength{\casoWsep}      \setlength{\casoWsep}{0.6\baselineskip} % aire en \casolineaW
+
+% ===== Entorno Caso (ancho completo) =====
+% Encabezado estilo "Caso N – Título" en franja amarilla
 \NewDocumentEnvironment{CasoL}{ O{} }{%
   \refstepcounter{caso}%
   \par\medskip
@@ -655,63 +661,112 @@
 }{%
   \par\vspace{1em}
 }
-
-% Alias para compatibilidad: 'Caso' == 'CasoL'
+% Alias
 \NewDocumentEnvironment{Caso}{O{}}
   {\begin{CasoL}[#1]}
   {\end{CasoL}}
 
-% -------------------------------------------------
-% Línea de Caso con contenido ANCHO COMPLETO debajo del texto
-%   Uso normal: \casolineaW{texto}{expresión/figura}
-%   Uso con * : \casolineaW*{texto}{bloque ya en display (aligned, tikzpicture, etc.)}
-%   Comportamiento:
-%     - Muestra el texto arriba (alineado a la izquierda)
-%     - Debajo, centra la matemática en su propia línea
+% ===== Línea ANCHO COMPLETO debajo del texto =====
+% (desvincular y definir de cero para evitar conflictos)
+\let\casolineaW\relax
+% \casolineaW{texto}{expresión/figura}
+% \casolineaW*{texto}{bloque ya en display (aligned, tikzpicture, etc.)}
 \NewDocumentCommand{\casolineaW}{s m m}{%
-  \noindent\hspace*{1.5em}%
-  \begin{minipage}{0.92\linewidth}% bloque ANCHO COMPLETO
-    #2\par\vspace{0.4ex}%
-    \noindent
-    \IfBooleanTF{#1}{%
-      % versión con *: NO envolver en \[ \] (ya traes display)
-      #3%
-    }{%
-      % versión sin *: envolver en display math y centrar en su línea
-      \[
-        \displaystyle #3
-      \]%
-    }%
-  \end{minipage}\par
+  % Texto en UNA sola línea si cabe, ocupando todo el ancho útil del bloque:
+  \noindent\hspace*{\casoIndent}\makebox[\casoLineW][l]{#2}\par
+  % Aire configurable antes de la mates:
+  \vspace{\casoWsep}%
+  % Matemática a la izquierda del bloque (alineada con el margen):
+  \noindent\hspace*{\casoIndent}%
+  \IfBooleanTF{#1}{%
+    #3%
+  }{%
+    \makebox[\casoLineW][l]{\(\displaystyle #3\)}%
+  }%
+  \par
 }
 
-% -------------------------------------------------
-% Variante DOS COLUMNAS: texto a la izquierda, matemática a la derecha
-%   Uso normal: \casolinea{texto}{expresión}
-%   Uso con *   \casolinea*{texto}{bloque en display (aligned, tikzpicture, etc.)}
-%   Comportamiento:
-%     - Columna izq. (texto) ancho \casoLeftW
-%     - Columna der. (mates)  ancho \casoRightW, centrada en display si no usas *
+% ===== Base en DOS COLUMNAS (alineación por la LÍNEA FINAL) =====
+% b{...} de 'array' alinea por la última línea (renglón del ":")
+\newcommand{\casolineaT}[2]{%
+  \noindent\hspace*{\casoIndent}%
+  \begin{tabular}[t]{@{}b{\casoLeftW}@{\hspace{\casoColSep}}b{\casoRightW}@{}}%
+    #1 & #2\\
+  \end{tabular}\par
+}
+
+% ===== Sabor de alto nivel (con/sin display automático) =====
+\let\casolinea\relax
+% \casolinea{texto}{expr}    -> expr inline con \displaystyle (IZQ), baseline OK
+% \casolinea*{texto}{bloque} -> sin envolver (aligned/tikz/tabla). Para bloques multi-línea,
+%                               puedes añadir [b] al entorno interno para apoyar en su última línea.
 \NewDocumentCommand{\casolinea}{s m m}{%
-  \noindent
-  \begin{minipage}[t]{\casoLeftW}
-    #2%
-  \end{minipage}\hfill
-  \begin{minipage}[t]{\casoRightW}
-    \IfBooleanTF{#1}{%
-      % versión con *: NO envolver (traes display propio)
-      #3%
-    }{%
-      % versión sin *: display centrado en la columna
-      \[
-        \displaystyle #3
-      \]%
-    }%
-  \end{minipage}\par\vspace{0.6ex}%
+  \IfBooleanTF{#1}{%
+    \casolineaT{#2}{#3}%
+  }{%
+    \casolineaT{#2}{\(\displaystyle #3\)}%
+  }%
 }
 
+% ===== Nota a TODO EL ANCHO (centrado opcional, sin cortes si cabe) =====
+\let\casonota\relax
+% \casonota{...}   -> izquierda
+% \casonota*{...}  -> centrada
+\NewDocumentCommand{\casonota}{s m}{%
+  \noindent\hspace*{\casoIndent}%
+  \IfBooleanTF{#1}{%
+    \makebox[\casoLineW][c]{#2}%
+  }{%
+    \makebox[\casoLineW][l]{#2}%
+  }%
+  \par\vspace{0.6ex}%
+}
+
+% Atajo semántico para "Recuerda:" (centrado por defecto)
+\providecommand{\casoRecuerda}{}% crea stub si no existía
+\renewcommand{\casoRecuerda}[1]{%
+  \casonota*{\textbf{Recuerda:} #1}%
+}
+
+\newcommand{\casolineaWc}[2]{%
+  \noindent\hspace*{\casoIndent}\makebox[\casoLineW][l]{#1}\par
+  \vspace{\casoWsep}%
+  \noindent\hspace*{\casoIndent}\makebox[\casoLineW][c]{\(\displaystyle #2\)}\par
+}
+
+% Texto ancho completo con el mismo ritmo que \casolineaWc
+\newcommand{\casolineaWtext}[1]{%
+  \noindent\hspace*{\casoIndent}\makebox[\casoLineW][l]{#1}\par
+  \vspace{\casoWsep}%
+}
+
+\newcommand{\CasosSetLeft}[1]{%
+  \setlength{\casoLeftW}{#1\casoLineW}%
+  \setlength{\casoRightW}{\dimexpr\casoLineW - \casoLeftW - \casoColSep\relax}%
+}
+
+
+
 % -------------------------------------------------
-% 11) UTILIDADES GENERALES
+% 11) MACROS MATEMATICAS
+% -------------------------------------------------
+
+% --- Regla en caja + tag a 2 cm (estable) ---
+\newlength{\ReglaTagGap}
+\setlength{\ReglaTagGap}{2cm} % distancia entre la caja y el (n)
+
+\providecommand{\ReglaCajaTag}{} % por si existía
+\renewcommand{\ReglaCajaTag}[2]{% #1 = contenido SIN $, #2 = número
+  \begin{center}
+    {\setlength{\fboxsep}{6pt}\Large \Resultado{#1}}% caja un poco más grande y con más aire
+    \hspace{\ReglaTagGap}%
+    {\normalsize\bfseries (#2)}% tag +1 paso y en negrita
+  \end{center}
+}
+
+
+% -------------------------------------------------
+% 12) UTILIDADES GENERALES
 % -------------------------------------------------
 
 % Esquemas/figuras centradas con título opcional

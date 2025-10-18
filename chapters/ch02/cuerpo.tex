@@ -22,10 +22,10 @@ Por ejemplo, la quinta potencia de 2, que indicaremos así:
 
 Otros ejemplos:  
 
-\begin{ejemplos}[2][\textbullet]
+\begin{ejemplosplain}[2]
   \task $x^4 = x \cdot x \cdot x \cdot x$
   \task $(-5)^3 = (-5)\cdot(-5)\cdot(-5) = -125$
-\end{ejemplos}
+\end{ejemplosplain}
 
 En una potencia se distinguen dos elementos: la \textit{base}, que es el
 número que se multiplica por sí mismo, y el \textit{exponente}, que indica
@@ -42,26 +42,29 @@ casos:
 
 a) Si el exponente es \textit{impar}, la potencia será negativa: 
 
-\begin{ejemplos}[2][\textbullet]
+\begin{ejemplosplain}[2]
   \task $(-7)^3 = (-7)\cdot(-7)\cdot(-7) = -343$
   \task $(-3)^5 = (-3)\cdot(-3)\cdot(-3)\cdot(-3)\cdot(-3) = -243$
-\end{ejemplos}
+\end{ejemplosplain}
 
 b) Si el exponente es \textit{par}, la potencia será positiva: 
 
-\begin{ejemplos}[2][\textbullet]
+\begin{ejemplosplain}[2]
   \task $(-2)^4 = (-2)\cdot(-2)\cdot(-2)\cdot(-2) = 16$
   \task $(-11)^2 = (-11)\cdot(-11) = 121$
-\end{ejemplos}
+\end{ejemplosplain}
 
 Por convención, cuando el exponente es la unidad, ésta no se indica:
 
-\begin{ejemplos}[1][\textbullet]
-  \task $8^1 = 8$
-  \task $(-4)^1 = -4$
-  \task $x^1 = x$
-\end{ejemplos}
-
+\noindent\makebox[\linewidth][c]{%
+  \begin{minipage}{0.25\linewidth} % ajusta 0.6 a tu gusto
+    \begin{ejemplosplain}
+      \task $8^1 = 8$
+      \task $(-4)^1 = -4$
+      \task $x^1 = x$
+    \end{ejemplosplain}
+  \end{minipage}%
+}
 
 \input{chapters/ch02/ejercicios/ejercicios01.tex}
 
@@ -85,6 +88,8 @@ Ejemplos:
 % Ejercicio 2
 \input{chapters/ch02/ejercicios/ejercicios02.tex}
 
+Lo anterior se presenta frecuentemente al hacer operaciones más complejas, como puede observarse en los siguientes ejemplos:
+
 % Caso 1 (enseñanzas del profesor)
 \input{chapters/ch02/casos/caso01.tex}
 
@@ -93,3 +98,60 @@ Ejemplos:
 
 % Caso 3 (enseñanzas del profesor)
 \input{chapters/ch02/casos/caso03.tex}
+
+% Ejercicio 3
+\input{chapters/ch02/ejercicios/ejercicios03.tex}
+
+
+\section*{Producto de potencias de igual base}
+
+El resultado de multiplicar potencias de igual base es esa base elevada a la suma de los exponentes de los factores:
+
+% Regla en caja con numeración (1)
+
+\ReglaCajaTag{x^{m}\cdot x^{n}=x^{m+n}}{1}
+
+\noindent\textbf{En efecto:}
+\vspace*{-0.05cm}
+\begingroup
+\renewcommand{\arraystretch}{1.75}% ← separa filas (1.25–1.45 suele verse bien)
+\[
+\begin{array}{@{}l rcl@{}}
+\makebox[0pt][r]{\text{a-. }\;} & 2^{3}\!\cdot\! 2^{4} & = &
+  \underbrace{(2\!\cdot\!2\!\cdot\!2)}_{\textit{3 veces}}
+  \cdot \underbrace{(2\!\cdot\!2\!\cdot\!2\!\cdot\!2)}_{\textit{4 veces}}
+  = \underbrace{2\!\cdot\!2\!\cdot\!2\!\cdot\!2\!\cdot\!2\!\cdot\!2\!\cdot\!2}_{\textit{7 veces}}
+  = 2^{7} \\
+
+\makebox[0pt][r]{\text{b-. }\;} & a^{5}\!\cdot\! a^{3} & = &
+  \underbrace{(a\!\cdot\!a\!\cdot\!a\!\cdot\!a\!\cdot\!a)}_{\textit{5 veces}}
+  \cdot \underbrace{(a\!\cdot\!a\!\cdot\!a)}_{\textit{3 veces}}
+  = \underbrace{a\!\cdot\!a\!\cdot\!a\!\cdot\!a\!\cdot\!a\!\cdot\!a\!\cdot\!a\!\cdot\!a}_{\textit{8 veces}}
+  = a^{8} \\
+
+\makebox[0pt][r]{\text{c-. }\;} & x^{2}\!\cdot\! x^{4}\!\cdot\! x\!\cdot\! x^{3} & = &
+  \underbrace{(x\!\cdot\!x)}_{\textit{2 veces}}
+  \cdot \underbrace{(x\!\cdot\!x\!\cdot\!x\!\cdot\!x)}_{\textit{4 veces}}
+  \cdot x \cdot \underbrace{(x\!\cdot\!x\!\cdot\!x)}_{\textit{3 veces}} \\[.2ex]
+& & = & \underbrace{x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x\!\cdot\!x}_{\textit{10 veces}}
+  = x^{10}
+\end{array}
+\]
+\endgroup
+
+% Caso 4 
+\input{chapters/ch02/casos/caso04.tex}
+
+% Caso 5
+\input{chapters/ch02/casos/caso05.tex}
+
+% Caso 6
+\input{chapters/ch02/casos/caso06.tex}
+
+\textbf{Nota:} El signo del resultado final pudo determinarse desde el primer momento tomando en cuenta que en 
+la expresión original hay ocho factores negativos (3 que provienen del segundo multiplicando, 4 que provienen del 
+tercero y otro más del cuarto). Emplearemos esta forma en el ejercicio que sigue.
+
+% Caso 7
+\input{chapters/ch02/casos/caso07.tex}
+
